@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
 )
 
@@ -30,7 +31,11 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err2 := resp.Body.Close(); err2 != nil {
+			log.Debug(err2)
+		}
+	}()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return

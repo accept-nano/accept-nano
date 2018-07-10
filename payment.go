@@ -301,7 +301,11 @@ func (p *Payment) notifyMerchant() error {
 	if err != nil {
 		return err
 	}
-	resp.Body.Close()
+	defer func() {
+		if err2 := resp.Body.Close(); err2 != nil {
+			log.Debug(err2)
+		}
+	}()
 	if resp.StatusCode != 200 {
 		return errors.New("bad notification response")
 	}
