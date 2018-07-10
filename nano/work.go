@@ -6,6 +6,7 @@ import (
 	"hash"
 	"runtime"
 
+	"github.com/cenkalti/log"
 	"github.com/golang/crypto/blake2b"
 )
 
@@ -21,11 +22,13 @@ func GenerateWork(hash string) (string, error) {
 		return "", err
 	}
 	var nonce uint64
+	log.Debug("starting work")
 	for ; !validateWork(digest, b, nonce); nonce++ {
 		if nonce%1000 == 0 {
 			runtime.Gosched()
 		}
 	}
+	log.Debug("work finished")
 	work := make([]byte, 8)
 	binary.BigEndian.PutUint64(work, nonce)
 	return hex.EncodeToString(work), nil
