@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/cenkalti/accept-nano/nano"
+	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
 	"github.com/coreos/bbolt"
 	"github.com/ulule/limiter"
