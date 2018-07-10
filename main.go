@@ -19,10 +19,7 @@ import (
 	"github.com/ulule/limiter/drivers/store/memory"
 )
 
-const (
-	paymentsBucket = "payments"
-	tokenLength    = 20
-)
+const paymentsBucket = "payments"
 
 var (
 	generateSeed      = flag.Bool("seed", false, "generate a seed and exit")
