@@ -1,0 +1,21 @@
+dist: trusty
+language: go
+before_install:
+- go get github.com/golang/dep/cmd/dep
+install:
+- dep ensure
+before_script:
+- go build -ldflags="-X main.Version=$TRAVIS_TAG"
+- go get github.com/alecthomas/gometalinter
+- gometalinter --install
+- gometalinter --config=gometalinter.json
+script: go test -v -race ./...
+deploy:
+  provider: releases
+  skip_cleanup: true
+  file: accept-nano
+  on:
+    repo: accept-nano/accept-nano
+    tags: true
+  api_key:
+    secure: moDIzqmcGRea/mBOsBZkz7pffGKDgoEZVgNmnmcQIFVwxoqhjxC5xYrbfdmGrRuCEqQ9fMWP77y5mxQqOltK5mlYkShQLmw5PUqsEf81//d9MreFEBqCgpWBRMTUSIxNIT8jiAUad8hdGE4c6XwER1w1GCXwTopm/41Dmahza5KPhzydKPHZETnskzkWgiXeJvDSb32i5Q3HWe/6liJOrwjLJNUxVpVmb6gvif0i0SsOKkEzt3TkQga4dNxwoSMUKGAMBHshsh8Cas3ShSoS1u14dC5bm1jsOI2hU6VSNDFMGqvrU6fFS1ORdQvtY94q28IMlSfLyZ7uevoMpo7NDEdNO2B5LvP8qm3Vcs2wbBOl6A2R0GWjV5hNMVGLvtf+V9hQ165qAz3ybQ4INQQYCuzHZh17gNI1ZCpFcFJwMPwaBRRjDa4OEonJ2mJGauUJ0mS5qbnyFH3mmi3g9bNyfNQjxZtvbNP+3MDtidDFoD2CpP3+FipEAlqs5vBEVPYlieIvm9nLhoWs0g/eTaGCqwc7Flcu4xrzDry4VpH0+FooCYYHK55CQDx99LxK4s/cd5adqbHxRp7WVjmbJ5fLbxtBC0D+vCZVowES6CWq8dnZ9yJTXHXyg/c9oF17v5Idlxhr633l6Q2ilr1nxDMBEL4en2ioYDJdLffYxCGcPds=
