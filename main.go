@@ -22,8 +22,10 @@ import (
 const paymentsBucket = "payments"
 
 var (
+	Version           = ""
 	generateSeed      = flag.Bool("seed", false, "generate a seed and exit")
 	configPath        = flag.String("config", "config.toml", "config file path")
+	version           = flag.Bool("version", false, "display version and exit")
 	config            Config
 	db                *bolt.DB
 	server            http.Server
@@ -34,7 +36,16 @@ var (
 )
 
 func main() {
+	if Version == "" {
+		Version = "v0.0.0"
+	}
+
 	flag.Parse()
+
+	if *version {
+		fmt.Println(Version)
+		return
+	}
 
 	if *generateSeed {
 		seed, err := NewSeed()
