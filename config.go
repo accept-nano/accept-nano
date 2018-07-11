@@ -30,4 +30,6 @@ type Config struct {
 	ReceiveTreshold string
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
+	// Max allowed time (in seconds) for payment after it is created.
+	MaxAllowedDuration int
 }
