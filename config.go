@@ -19,7 +19,9 @@ type Config struct {
 	Account string
 	// Representative for created deposit accounts.
 	Representative string
-	// Seed to generate private keys from. You can generate a new seed with -seed flag.
+	// Seed to generate private keys from.
+	// This is not your Account seed!
+	// You can generate a new seed with -seed flag.
 	// This seed will also be used for signing JWT tokens.
 	Seed string
 	// When customer sends the funds, merhchant will be notified at this URL.
