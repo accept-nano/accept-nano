@@ -21,7 +21,12 @@ func runServer() {
 	server.Addr = config.ListenAddress
 	server.Handler = mux
 
-	err := server.ListenAndServe()
+	var err error
+	if config.CertFile != "" && config.KeyFile != "" {
+		err = server.ListenAndServeTLS(config.CertFile, config.KeyFile)
+	} else {
+		err = server.ListenAndServe()
+	}
 	if err == http.ErrServerClosed {
 		return
 	}

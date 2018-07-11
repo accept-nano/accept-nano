@@ -7,6 +7,8 @@ type Config struct {
 	DatabasePath string
 	// Listen address for HTTP server.
 	ListenAddress string
+	// Optional TLS certificate and key if you want to serve over HTTPS.
+	CertFile, KeyFile string
 	// URL of a running node.
 	NodeURL string
 	// HTTP Basic Authentication user name for Node URL.
