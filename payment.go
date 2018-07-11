@@ -111,7 +111,7 @@ func (p Payment) NextCheck() time.Duration {
 }
 
 func (p Payment) finished() bool {
-	if now().Sub(p.CreatedAt) > time.Duration(config.MaxAllowedDuration)*time.Second {
+	if now().Sub(p.CreatedAt) > time.Duration(config.AllowedDuration)*time.Second {
 		return true
 	}
 	return p.SentAt != nil
