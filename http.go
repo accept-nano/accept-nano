@@ -43,6 +43,7 @@ type Response struct {
 	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`
 	Currency         string          `json:"currency"`
 	Balance          decimal.Decimal `json:"balance"`
+	RemainingSeconds int             `json:"remainingSeconds"`
 	State            string          `json:"state"`
 	Fulfilled        bool            `json:"fulfilled"`
 	MerchantNotified bool            `json:"merchantNotified"`
@@ -116,6 +117,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		AmountInCurrency: payment.AmountInCurrency,
 		Currency:         payment.Currency,
 		State:            payment.State,
+		RemainingSeconds: int(payment.remainingDuration() / time.Second),
 	}
 	b, err := json.Marshal(&response)
 	if err != nil {
@@ -151,6 +153,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		Currency:         payment.Currency,
 		Balance:          RawToNano(payment.Balance),
 		State:            payment.State,
+		RemainingSeconds: int(payment.remainingDuration() / time.Second),
 		Fulfilled:        payment.FulfilledAt != nil,
 		MerchantNotified: payment.NotifiedAt != nil,
 	}

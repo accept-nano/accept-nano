@@ -117,6 +117,11 @@ func (p Payment) finished() bool {
 	return p.SentAt != nil
 }
 
+func (p Payment) remainingDuration() time.Duration {
+	allow := time.Duration(config.AllowedDuration) * time.Second
+	return p.CreatedAt.Add(allow).Sub(*now())
+}
+
 // StartChecking starts a goroutine to check the payment periodically.
 func (p *Payment) StartChecking() {
 	if p.finished() {
