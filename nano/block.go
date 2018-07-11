@@ -10,12 +10,12 @@ type PendingBlock struct {
 	Source string `json:"source"`
 }
 
-func (n *Node) Pending(account string, count int, treshold string) (map[string]PendingBlock, error) {
+func (n *Node) Pending(account string, count int, threshold string) (map[string]PendingBlock, error) {
 	args := map[string]interface{}{
-		"account":  account,
-		"count":    count,
-		"treshold": treshold,
-		"source":   "true",
+		"account":   account,
+		"count":     count,
+		"threshold": threshold,
+		"source":    "true",
 	}
 	var nodeResponse struct {
 		Blocks *json.RawMessage `json:"blocks"`

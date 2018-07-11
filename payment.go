@@ -208,11 +208,11 @@ func now() *time.Time {
 }
 
 func (p *Payment) checkPending() error {
-	treshold, err := decimal.NewFromString(config.ReceiveTreshold)
+	threshold, err := decimal.NewFromString(config.ReceiveThreshold)
 	if err != nil {
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(treshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
 	if err != nil {
 		return err
 	}
@@ -244,11 +244,11 @@ func (p *Payment) checkPending() error {
 }
 
 func (p *Payment) receivePending() error {
-	treshold, err := decimal.NewFromString(config.ReceiveTreshold)
+	threshold, err := decimal.NewFromString(config.ReceiveThreshold)
 	if err != nil {
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(treshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
 	if err != nil {
 		return err
 	}

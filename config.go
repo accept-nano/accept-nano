@@ -29,7 +29,7 @@ type Config struct {
 	// Limit payment creation requests to prevent DOS attack.
 	RateLimit string
 	// Payments below this amount are ignored.
-	ReceiveTreshold string
+	ReceiveThreshold string
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
 	// Max allowed time (in seconds) for payment after it is created.
