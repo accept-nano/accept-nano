@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/log"
+	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
 	"github.com/ulule/limiter/drivers/middleware/stdlib"
 )
@@ -19,7 +20,7 @@ func runServer() {
 	mux.HandleFunc("/api/verify", handleVerify)
 
 	server.Addr = config.ListenAddress
-	server.Handler = mux
+	server.Handler = cors.Default().Handler(mux)
 
 	var err error
 	if config.CertFile != "" && config.KeyFile != "" {
