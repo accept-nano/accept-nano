@@ -45,6 +45,7 @@ type Response struct {
 	Balance          decimal.Decimal `json:"balance"`
 	State            string          `json:"state"`
 	Fulfilled        bool            `json:"fulfilled"`
+	MerchantNotified bool            `json:"merchantNotified"`
 }
 
 func handlePay(w http.ResponseWriter, r *http.Request) {
@@ -151,6 +152,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		Balance:          RawToNano(payment.Balance),
 		State:            payment.State,
 		Fulfilled:        payment.FulfilledAt != nil,
+		MerchantNotified: payment.NotifiedAt != nil,
 	}
 	b, err := json.Marshal(&response)
 	if err != nil {
