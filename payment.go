@@ -294,7 +294,7 @@ func (p *Payment) notifyMerchant() error {
 		Token:            p.token,
 		Account:          p.Account,
 		Amount:           RawToNano(p.Amount),
-		AmountInCurrency: RawToNano(p.AmountInCurrency),
+		AmountInCurrency: p.AmountInCurrency,
 		Currency:         p.Currency,
 		Balance:          RawToNano(p.Balance),
 		State:            p.State,
