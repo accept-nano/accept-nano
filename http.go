@@ -31,9 +31,7 @@ func runServer() {
 	if err == http.ErrServerClosed {
 		return
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(err)
 }
 
 type Response struct {
