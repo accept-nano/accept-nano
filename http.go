@@ -34,19 +34,6 @@ func runServer() {
 	log.Fatal(err)
 }
 
-type Response struct {
-	Token            string          `json:"token"`
-	Account          string          `json:"account"`
-	Amount           decimal.Decimal `json:"amount"`
-	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`
-	Currency         string          `json:"currency"`
-	Balance          decimal.Decimal `json:"balance"`
-	RemainingSeconds int             `json:"remainingSeconds"`
-	State            string          `json:"state"`
-	Fulfilled        bool            `json:"fulfilled"`
-	MerchantNotified bool            `json:"merchantNotified"`
-}
-
 func handlePay(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
@@ -91,7 +78,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	payment := Payment{
+	payment := &Payment{
 		PublicKey:        key.Public,
 		Account:          key.Account,
 		Amount:           NanoToRaw(amount),
@@ -108,15 +95,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payment.StartChecking()
-	response := Response{
-		Token:            token,
-		Account:          key.Account,
-		Amount:           RawToNano(payment.Amount),
-		AmountInCurrency: payment.AmountInCurrency,
-		Currency:         payment.Currency,
-		State:            payment.State,
-		RemainingSeconds: int(payment.remainingDuration() / time.Second),
-	}
+	response := NewResponse(payment)
 	b, err := json.Marshal(&response)
 	if err != nil {
 		log.Error(err)
@@ -143,18 +122,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	response := Response{
-		Token:            payment.token,
-		Account:          payment.Account,
-		Amount:           RawToNano(payment.Amount),
-		AmountInCurrency: payment.AmountInCurrency,
-		Currency:         payment.Currency,
-		Balance:          RawToNano(payment.Balance),
-		State:            payment.State,
-		RemainingSeconds: int(payment.remainingDuration() / time.Second),
-		Fulfilled:        payment.FulfilledAt != nil,
-		MerchantNotified: payment.NotifiedAt != nil,
-	}
+	response := NewResponse(payment)
 	b, err := json.Marshal(&response)
 	if err != nil {
 		log.Error(err)
