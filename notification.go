@@ -7,7 +7,6 @@ import (
 )
 
 type Notification struct {
-	Token            string          `json:"token"`
 	Account          string          `json:"account"`
 	Amount           decimal.Decimal `json:"amount"`
 	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`

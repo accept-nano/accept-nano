@@ -20,9 +20,9 @@ type Response struct {
 	MerchantNotified bool            `json:"merchantNotified"`
 }
 
-func NewResponse(p *Payment) *Response {
+func NewResponse(p *Payment, token string) *Response {
 	return &Response{
-		Token:            p.token,
+		Token:            token,
 		Account:          p.Account,
 		Amount:           RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,

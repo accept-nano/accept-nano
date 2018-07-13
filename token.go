@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"strconv"
 	"strings"
 
@@ -11,16 +12,32 @@ import (
 )
 
 type MyCustomClaims struct {
-	Index string `json:"index"`
+	Index   string `json:"index"`
+	Account string `json:"account"`
 	jwt.StandardClaims
 }
 
-func NewToken(index string) (string, error) {
+func NewToken(index, account string) (string, error) {
 	claims := MyCustomClaims{
-		Index: index,
+		Index:   index,
+		Account: account,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(config.Seed))
+}
+
+func ParseToken(token string) (*MyCustomClaims, error) {
+	var claims MyCustomClaims
+	t, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.Seed), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !t.Valid {
+		return nil, errors.New("invalid token")
+	}
+	return &claims, nil
 }
 
 func NewSeed() (string, error) {

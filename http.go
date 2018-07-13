@@ -72,7 +72,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	token, err := NewToken(index)
+	token, err := NewToken(index, key.Account)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -81,12 +81,12 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 	payment := &Payment{
 		PublicKey:        key.Public,
 		Account:          key.Account,
+		Index:            index,
 		Amount:           NanoToRaw(amount),
 		AmountInCurrency: amountInCurrency,
 		Currency:         currency,
 		State:            r.FormValue("state"),
 		CreatedAt:        time.Now().UTC(),
-		token:            token,
 	}
 	err = payment.Save()
 	if err != nil {
@@ -95,7 +95,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payment.StartChecking()
-	response := NewResponse(payment)
+	response := NewResponse(payment, token)
 	b, err := json.Marshal(&response)
 	if err != nil {
 		log.Error(err)
@@ -111,7 +111,16 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 
 func handleVerify(w http.ResponseWriter, r *http.Request) {
 	token := r.FormValue("token")
-	payment, err := LoadPayment([]byte(token))
+	if token == "" {
+		http.Error(w, "invalid token", http.StatusBadRequest)
+		return
+	}
+	claims, err := ParseToken(token)
+	if err != nil {
+		http.Error(w, "invalid token", http.StatusBadRequest)
+		return
+	}
+	payment, err := LoadPayment([]byte(claims.Account))
 	if err == errPaymentNotFound {
 		log.Debugln("token not found:", token)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -122,7 +131,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	response := NewResponse(payment)
+	response := NewResponse(payment, token)
 	b, err := json.Marshal(&response)
 	if err != nil {
 		log.Error(err)

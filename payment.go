@@ -9,7 +9,6 @@ import (
 
 	"github.com/cenkalti/log"
 	"github.com/coreos/bbolt"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/shopspring/decimal"
 )
 
@@ -25,6 +24,8 @@ type Payment struct {
 	Account string
 	// Public key of Account.
 	PublicKey string
+	// Index for generating deterministic key.
+	Index string
 	// Currency of amount in original request.
 	Currency string
 	// Original amount requested by client. Amount * Price(Currency)
@@ -47,8 +48,6 @@ type Payment struct {
 	ReceivedAt *time.Time
 	// Set when Amount is sent to the merchant account.
 	SentAt *time.Time
-	// token is sent to the customer when payment request is created.
-	token string
 }
 
 // LoadPayment fetches a Payment object from database by key.
@@ -70,14 +69,14 @@ func LoadPayment(key []byte) (*Payment, error) {
 	if value == nil {
 		return nil, errPaymentNotFound
 	}
-	payment := Payment{token: string(key)}
+	var payment Payment
 	err = json.Unmarshal(value, &payment)
 	return &payment, err
 }
 
 // Save the Payment object in database.
 func (p *Payment) Save() error {
-	key := []byte(p.token)
+	key := []byte(p.Account)
 	value, err := json.Marshal(&p)
 	if err != nil {
 		return err
@@ -139,7 +138,7 @@ func (p *Payment) checkPayment() {
 		}
 		select {
 		case <-time.After(p.NextCheck()):
-			log.Debugln("checking payment:", p.token)
+			log.Debugln("checking payment:", p.Account)
 			err := p.process()
 			switch err {
 			case errNoPendingBlock, errPaymentNotFulfilled:
@@ -257,11 +256,7 @@ func (p *Payment) receivePending() error {
 	if err != nil {
 		return err
 	}
-	index, err := p.Index()
-	if err != nil {
-		return err
-	}
-	key, err := node.DeterministicKey(config.Seed, index)
+	key, err := node.DeterministicKey(config.Seed, p.Index)
 	if err != nil {
 		return err
 	}
@@ -275,11 +270,7 @@ func (p *Payment) receivePending() error {
 }
 
 func (p *Payment) sendToMerchant() error {
-	index, err := p.Index()
-	if err != nil {
-		return err
-	}
-	key, err := node.DeterministicKey(config.Seed, index)
+	key, err := node.DeterministicKey(config.Seed, p.Index)
 	if err != nil {
 		return err
 	}
@@ -291,7 +282,6 @@ func (p *Payment) notifyMerchant() error {
 		return nil
 	}
 	notification := Notification{
-		Token:            p.token,
 		Account:          p.Account,
 		Amount:           RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,
@@ -318,17 +308,4 @@ func (p *Payment) notifyMerchant() error {
 		return errors.New("bad notification response")
 	}
 	return nil
-}
-
-func (p *Payment) Index() (string, error) {
-	token, err := jwt.ParseWithClaims(p.token, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(config.Seed), nil
-	})
-	if err != nil {
-		return "", err
-	}
-	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
-		return claims.Index, nil
-	}
-	return "", errors.New("invalid token")
 }
