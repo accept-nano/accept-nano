@@ -27,7 +27,7 @@ Payment gateway for [NANO](https://nano.org)
  - *accept-nano* is a HTTP server with 2 primary endpoints.
    - **/api/pay** for creating a payment request.
    - **/api/verify** for checking the status of a payment.
- - From client, you create a payment request from client by posting the currency and amount.
+ - From client, you create a payment request by posting the currency and amount.
  - When *accept-nano* receives a payment request, it creates a random seed and unique address for the payment and saves it in its database, then returns a unique token to the client.
  - After the payment is created, *accept-nano* starts checking the destination account for incoming funds periodically.
  - While *accept-nano* is checking the payment, the client also checks by calling the verification endpoint. It does this continuously until the payment is verified.
