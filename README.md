@@ -15,7 +15,7 @@ Payment gateway for [NANO](https://nano.org)
 
 ## Running
 
- - You must have a running NANO node software. It's trivial to setup one. You can find instructions at https://developers.nano.org/guides/node-setup/
+ - You must have a running NANO node. It's trivial to set one up. You can find instructions at https://developers.nano.org/guides/node-setup/
  - In NANO node [config](https://github.com/nanocurrency/raiblocks/wiki/config.json), `"rpc_enable"` and `"enable_control"` options must be enabled.
  - Create a config file for *accept-nano*. See [Config section](#config) below.
  - Run it with:
@@ -28,15 +28,15 @@ Payment gateway for [NANO](https://nano.org)
    - **/api/pay** for creating a payment request.
    - **/api/verify** for checking the status of a payment.
  - From client, you create a payment request from client by posting the currency and amount.
- - When *accept-nano* receives a payment request, it creates a random seed and unique address for the payment and saves it in it's database, then returns a unique token to the client.
+ - When *accept-nano* receives a payment request, it creates a random seed and unique address for the payment and saves it in its database, then returns a unique token to the client.
  - After the payment is created, *accept-nano* starts checking the destination account for incoming funds periodically.
  - While *accept-nano* is checking the payment, the client also checks by calling the verification endpoint. It does this continuously until the payment is verified.
- - Customer has a limited duration to transfer the funds to the destination account. The duration can be set in *accept-nano* config.
+ - The customer has a limited amount of time to transfer the funds to the destination account. This duration can be set in *accept-nano* config.
  - Then the customer pays the requested amount.
- - If *accept-nano* sees a pending blocks at destination account, it sends a notification to the merchant and changes the status of the payment to "verified".
- - At this point, the payment is received and the merchant is notified. The client can continue it's flow.
+ - If *accept-nano* sees a pending block at destination account, it sends a notification to the merchant and changes the status of the payment to "verified".
+ - At this point, the payment is received and the merchant is notified. The client can continue its flow.
  - The server accepts pending blocks at the destination account.
- - The server sends the funds in destination account to the merchant's account defined in the config file.
+ - The server sends the funds in destination account to the merchants account defined in the config file.
 
 ## Config
 
@@ -69,16 +69,16 @@ AllowedDuration = 3600
 
 ## Security
 
- - *accept-nano* does not need to know your merchant wallet seed. It takes the payments from customers and sends them to your merchant account address defined in config file.
+ - *accept-nano* does not need to know your merchant wallet seed. It takes payments from customers and sends them to your merchant account address defined in config file.
  - *accept-nano* server is designed to be open to the Internet but you can run it in your internal network and control requests to it if you want to be extra safe.
- - *accept-nano* does not keep funds itself and pass incoming payments to the merchant account immediately. So there is only a small period of time when the funds are hold by *accept-nano*.
- - Private keys are not saved in database and derived from the seed you gave in config. So you are safe even if the database file is stolen.
+ - *accept-nano* does not keep funds itself and passes incoming payments to the merchant account immediately. So there is only a small period of time when the funds are held by *accept-nano*.
+ - Private keys are not saved in the database and derived from the seed defined in the config. So you are safe even if the database file is stolen.
 
 ## Contributing
 
  - Please open an issue if you have a question or suggestion.
  - Don't create a PR before discussing it first.
 
-## Who is using in prodution?
+## Who is using *accept-nano* in production?
 
  - [Put.io](https://put.io)
