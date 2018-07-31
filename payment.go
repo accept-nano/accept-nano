@@ -127,10 +127,10 @@ func (p *Payment) StartChecking() {
 		return
 	}
 	checkPaymentWG.Add(1)
-	go p.checkPayment()
+	go p.checkLoop()
 }
 
-func (p *Payment) checkPayment() {
+func (p *Payment) checkLoop() {
 	defer checkPaymentWG.Done()
 	for {
 		if p.finished() {
@@ -138,17 +138,7 @@ func (p *Payment) checkPayment() {
 		}
 		select {
 		case <-time.After(p.NextCheck()):
-			log.Debugln("checking payment:", p.Account)
-			err := p.process()
-			switch err {
-			case errNoPendingBlock, errPaymentNotFulfilled:
-				log.Debug(err)
-			case nil:
-			default:
-				log.Error(err)
-			}
-			p.LastCheckedAt = now()
-			err = p.Save()
+			err := p.check()
 			if err != nil {
 				log.Error(err)
 			}
@@ -158,7 +148,27 @@ func (p *Payment) checkPayment() {
 	}
 }
 
+func (p *Payment) check() error {
+	log.Debugln("checking payment:", p.Account)
+	err := p.process()
+	switch err {
+	case errNoPendingBlock, errPaymentNotFulfilled:
+		log.Debug(err)
+		return nil
+	case nil:
+		p.LastCheckedAt = now()
+		return p.Save()
+	default:
+		return err
+	}
+}
+
+var locks = NewMapLock()
+
 func (p *Payment) process() error {
+	locks.Lock(p.Account)
+	defer locks.Unlock(p.Account)
+
 	if p.SentAt == nil {
 		if p.ReceivedAt == nil {
 			if p.NotifiedAt == nil {

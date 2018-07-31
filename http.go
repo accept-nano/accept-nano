@@ -18,6 +18,8 @@ func runServer() {
 	mux := http.NewServeMux()
 	mux.Handle("/api/pay", ratelimitMiddleware.Handler(http.HandlerFunc(handlePay)))
 	mux.HandleFunc("/api/verify", handleVerify)
+	mux.HandleFunc("/admin/payment", handleAdminGetPayment)
+	mux.HandleFunc("/admin/check", handleAdminCheckPayment)
 
 	server.Addr = config.ListenAddress
 	server.Handler = cors.Default().Handler(mux)

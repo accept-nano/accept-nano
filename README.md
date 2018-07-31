@@ -65,6 +65,7 @@ AllowedDuration = 3600
 # TLS certificate and key if you want to serve HTTPS.
 #CertFile = "put.io.crt"
 #KeyFile = "put.io.key"
+AdminPassword = "foo"
 ```
 
 ## Security

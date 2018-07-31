@@ -36,4 +36,7 @@ type Config struct {
 	MaxPayments int
 	// Max allowed time (in seconds) for payment after it is created.
 	AllowedDuration int
+	// Password for accessing admin endpoints.
+	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
+	AdminPassword string
 }
