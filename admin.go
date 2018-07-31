@@ -92,6 +92,13 @@ func handleAdminCheckPayment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	payment.LastCheckedAt = now()
+	err = payment.Save()
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	b, err := json.MarshalIndent(&payment, "", "  ")
 	if err != nil {
 		log.Error(err)
@@ -157,6 +164,13 @@ func handleAdminReceivePending(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	payment.ReceivedAt = now()
+	err = payment.Save()
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	b, err := json.MarshalIndent(&payment, "", "  ")
 	if err != nil {
 		log.Error(err)
@@ -217,6 +231,13 @@ func handleAdminSendToMerchant(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	if err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	payment.SentAt = now()
+	err = payment.Save()
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
