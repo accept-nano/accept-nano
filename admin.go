@@ -37,8 +37,7 @@ func handleAdminGetPayment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	response := NewResponse(payment, "")
-	b, err := json.MarshalIndent(&response, "", "  ")
+	b, err := json.MarshalIndent(&payment, "", "  ")
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -90,8 +89,7 @@ func handleAdminCheckPayment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	response := NewResponse(payment, "")
-	b, err := json.MarshalIndent(&response, "", "  ")
+	b, err := json.MarshalIndent(&payment, "", "  ")
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
