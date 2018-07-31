@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/BurntSushi/toml"
+)
+
 type Config struct {
 	// Print debug level log messages to console.
 	EnableDebugLog bool
@@ -39,4 +43,43 @@ type Config struct {
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
 	AdminPassword string
+}
+
+func (c *Config) Read() error {
+	_, err := toml.DecodeFile(*configPath, c)
+	if err != nil {
+		return err
+	}
+	c.setDefaults()
+	return nil
+}
+
+func (c *Config) setDefaults() {
+	if c.DatabasePath == "" {
+		c.DatabasePath = "accept-nano.db"
+	}
+	if c.ListenAddress == "" {
+		c.ListenAddress = "127.0.0.1:8080"
+	}
+	if c.NodeURL == "" {
+		c.NodeURL = "127.0.0.1:7076"
+	}
+	if c.Representative == "" {
+		c.Representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg"
+	}
+	if c.ShutdownTimeout == 0 {
+		c.ShutdownTimeout = 5000
+	}
+	if c.RateLimit == "" {
+		c.RateLimit = "60-H"
+	}
+	if c.ReceiveThreshold == "" {
+		c.ReceiveThreshold = "0.001"
+	}
+	if c.MaxPayments == 0 {
+		c.MaxPayments = 10
+	}
+	if c.AllowedDuration == 0 {
+		c.AllowedDuration = 3600
+	}
 }

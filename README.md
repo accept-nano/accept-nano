@@ -46,26 +46,15 @@ Payment gateway for [NANO](https://nano.org)
 ### Example Config
 
 ```toml
-EnableDebugLog = false
-DatabasePath = "/var/accept-nano.db"
-ListenAddress = "0.0.0.0:5000"
-NodeURL = "http://192.168.1.100:7076/"
-ShutdownTimeout = 5000
-RateLimit = "60-H"
-Representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg"
-ReceiveThreshold = "0.000001"
-MaxPayments = 10
+DatabasePath = "./accept-nano.db"
+ListenAddress = "127.0.0.1:8080"
+NodeURL = "http://127.0.0.1:7076/"
 # Don't forget to set your merchant account.
 Account = "xrb_your_mechant_account"
 # Generate a new random seed with "accept-nano -seed" command and keep it secret.
 Seed = "12F36345AB0B10557F22B36B5FF241EF09AF7AEA00A40B3F52CCD34640040E92"
-# NotificationURL is optional.
+# Payment notifications will be sent to this URL (optional).
 NotificationURL = "http://localhost:5001/"
-AllowedDuration = 3600
-# TLS certificate and key if you want to serve HTTPS.
-#CertFile = "put.io.crt"
-#KeyFile = "put.io.key"
-AdminPassword = "foo"
 ```
 
 ## Security

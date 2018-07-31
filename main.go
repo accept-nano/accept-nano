@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
 	"github.com/coreos/bbolt"
@@ -56,7 +55,7 @@ func main() {
 		return
 	}
 
-	_, err := toml.DecodeFile(*configPath, &config)
+	err := config.Read()
 	if err != nil {
 		log.Fatal(err)
 	}
