@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
+	"github.com/shopspring/decimal"
 )
 
 func sendAll(account, destination, privateKey string) error {
@@ -10,6 +11,13 @@ func sendAll(account, destination, privateKey string) error {
 	info, err := node.AccountInfo(account)
 	if err != nil {
 		return err
+	}
+	accountBalance, err := decimal.NewFromString(info.Balance)
+	if err != nil {
+		return err
+	}
+	if accountBalance.IsZero() {
+		return nil
 	}
 	work, err := nano.GenerateWork(info.Frontier)
 	if err != nil {

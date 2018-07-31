@@ -157,10 +157,6 @@ func handleAdminReceivePending(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = payment.receivePending()
-	if err == errNoPendingBlock {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

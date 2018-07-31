@@ -15,7 +15,6 @@ import (
 var (
 	errPaymentNotFound     = errors.New("payment not found")
 	errPaymentNotFulfilled = errors.New("payment not fulfilled")
-	errNoPendingBlock      = errors.New("no pending block")
 )
 
 // Payment is the data type stored in the database in JSON format.
@@ -173,7 +172,7 @@ func (p *Payment) check() error {
 	err := p.process()
 	p.LastCheckedAt = now()
 	switch err {
-	case errNoPendingBlock, errPaymentNotFulfilled:
+	case errPaymentNotFulfilled:
 		log.Debug(err)
 		return p.Save()
 	case nil:
@@ -246,14 +245,20 @@ func (p *Payment) checkPending() error {
 	if err != nil {
 		return err
 	}
+	var totalAmount decimal.Decimal
+	accountInfo, err := node.AccountInfo(p.Account)
+	if err != nil {
+		return err
+	}
+	accountBalance, err := decimal.NewFromString(accountInfo.Balance)
+	if err != nil {
+		return err
+	}
+	totalAmount.Add(accountBalance)
 	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
 	if err != nil {
 		return err
 	}
-	if len(pendingBlocks) == 0 {
-		return errNoPendingBlock
-	}
-	var totalAmount decimal.Decimal
 	for hash, pendingBlock := range pendingBlocks {
 		log.Debugf("received new block: %#v", hash)
 		amount, err2 := decimal.NewFromString(pendingBlock.Amount)
@@ -287,7 +292,7 @@ func (p *Payment) receivePending() error {
 		return err
 	}
 	if len(pendingBlocks) == 0 {
-		return errNoPendingBlock
+		return nil
 	}
 	key, err := node.DeterministicKey(config.Seed, p.Index)
 	if err != nil {
