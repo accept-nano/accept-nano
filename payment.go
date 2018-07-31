@@ -266,6 +266,9 @@ func (p *Payment) receivePending() error {
 	if err != nil {
 		return err
 	}
+	if len(pendingBlocks) == 0 {
+		return errNoPendingBlock
+	}
 	key, err := node.DeterministicKey(config.Seed, p.Index)
 	if err != nil {
 		return err

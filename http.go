@@ -21,6 +21,8 @@ func runServer() {
 	if config.AdminPassword != "" {
 		mux.HandleFunc("/admin/payment", handleAdminGetPayment)
 		mux.HandleFunc("/admin/check", handleAdminCheckPayment)
+		mux.HandleFunc("/admin/receive", handleAdminReceivePending)
+		mux.HandleFunc("/admin/send", handleAdminSendToMerchant)
 	}
 
 	server.Addr = config.ListenAddress
