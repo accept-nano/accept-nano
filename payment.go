@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
 	"github.com/coreos/bbolt"
 	"github.com/shopspring/decimal"
@@ -251,10 +252,13 @@ func (p *Payment) checkPending() error {
 		return err
 	}
 	accountBalance, err := decimal.NewFromString(accountInfo.Balance)
-	if err != nil {
+	switch err {
+	case nano.ErrAccountNotFound:
+	case nil:
+		totalAmount.Add(accountBalance)
+	default:
 		return err
 	}
-	totalAmount.Add(accountBalance)
 	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
 	if err != nil {
 		return err
