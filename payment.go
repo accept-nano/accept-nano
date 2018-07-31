@@ -21,33 +21,33 @@ var (
 // Payment is the data type stored in the database in JSON format.
 type Payment struct {
 	// Customer sends money to this account.
-	Account string
+	Account string `json:"account"`
 	// Public key of Account.
-	PublicKey string
+	PublicKey string `json:"publicKey"`
 	// Index for generating deterministic key.
-	Index string
+	Index string `json:"index"`
 	// Currency of amount in original request.
-	Currency string
+	Currency string `json:"currency"`
 	// Original amount requested by client. Amount * Price(Currency)
-	AmountInCurrency decimal.Decimal
+	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`
 	// In NANO currency. Payment is fulfilled when Account contains this amount.
-	Amount decimal.Decimal
+	Amount decimal.Decimal `json:"amount"`
 	// Current balance in Account
-	Balance decimal.Decimal
+	Balance decimal.Decimal `json:"balance"`
 	// Free text field to pass from customer to merchant.
-	State string
+	State string `json:"state"`
 	// Set when customer created the payment request via API.
-	CreatedAt time.Time
+	CreatedAt time.Time `json:"createdAt"`
 	// Set every time Account is checked for incoming funds.
-	LastCheckedAt *time.Time
+	LastCheckedAt *time.Time `json:"lastCheckedAt"`
 	// Set when detected customer has sent enough funds to Account.
-	FulfilledAt *time.Time
+	FulfilledAt *time.Time `json:"fulfilledAt"`
 	// Set when merchant is notified.
-	NotifiedAt *time.Time
+	NotifiedAt *time.Time `json:"notifiedAt"`
 	// Set when pending funds are accepted to Account.
-	ReceivedAt *time.Time
+	ReceivedAt *time.Time `json:"receivedAt"`
 	// Set when Amount is sent to the merchant account.
-	SentAt *time.Time
+	SentAt *time.Time `json:"sentAt"`
 }
 
 // LoadPayment fetches a Payment object from database by key.
