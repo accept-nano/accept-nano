@@ -138,37 +138,58 @@ func (p *Payment) checkLoop() {
 		}
 		select {
 		case <-time.After(p.NextCheck()):
-			err := p.check()
+			locks.Lock(p.Account)
+			err := p.reload()
 			if err != nil {
-				log.Error(err)
+				locks.Unlock(p.Account)
+				log.Errorln("cannot load payment:", p.Account)
+				continue
 			}
+			err = p.check()
+			if err != nil {
+				locks.Unlock(p.Account)
+				log.Errorf("error checking %s: %s", p.Account, err)
+				continue
+			}
+			locks.Unlock(p.Account)
 		case <-stopCheckPayments:
 			return
 		}
 	}
 }
 
-func (p *Payment) check() error {
+// Reload payment because it might be updated by admin operations.
+func (p *Payment) reload() error {
+	p2, err := LoadPayment([]byte(p.Account))
+	if err != nil {
+		return err
+	}
+	*p = *p2
+	return nil
+}
+
+func (p *Payment) check() (err error) {
+	defer func() {
+		p.LastCheckedAt = now()
+		err2 := p.Save()
+		if err != nil {
+			log.Errorln("cannot save payment:", p.Account)
+			err = err2
+		}
+	}()
 	log.Debugln("checking payment:", p.Account)
-	err := p.process()
+	err = p.process()
 	switch err {
 	case errNoPendingBlock, errPaymentNotFulfilled:
 		log.Debug(err)
-		return nil
-	case nil:
-		p.LastCheckedAt = now()
-		return p.Save()
-	default:
-		return err
+		err = nil
 	}
+	return
 }
 
 var locks = NewMapLock()
 
 func (p *Payment) process() error {
-	locks.Lock(p.Account)
-	defer locks.Unlock(p.Account)
-
 	if p.SentAt == nil {
 		if p.ReceivedAt == nil {
 			if p.NotifiedAt == nil {
