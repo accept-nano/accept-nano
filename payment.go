@@ -248,13 +248,13 @@ func (p *Payment) checkPending() error {
 	}
 	var totalAmount decimal.Decimal
 	accountInfo, err := node.AccountInfo(p.Account)
-	if err != nil {
-		return err
-	}
-	accountBalance, err := decimal.NewFromString(accountInfo.Balance)
 	switch err {
 	case nano.ErrAccountNotFound:
 	case nil:
+		accountBalance, err2 := decimal.NewFromString(accountInfo.Balance)
+		if err2 != nil {
+			return err2
+		}
 		totalAmount.Add(accountBalance)
 	default:
 		return err
