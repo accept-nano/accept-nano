@@ -48,13 +48,13 @@ Payment gateway for [NANO](https://nano.org)
 ```toml
 DatabasePath = "./accept-nano.db"
 ListenAddress = "127.0.0.1:8080"
-NodeURL = "http://127.0.0.1:7076/"
+NodeURL = "http://localhost:7076/"
 # Don't forget to set your merchant account.
 Account = "xrb_your_mechant_account"
 # Generate a new random seed with "accept-nano -seed" command and keep it secret.
 Seed = "12F36345AB0B10557F22B36B5FF241EF09AF7AEA00A40B3F52CCD34640040E92"
 # Payment notifications will be sent to this URL (optional).
-NotificationURL = "http://localhost:5001/"
+NotificationURL = "http://localhost:5000/"
 ```
 
 ## Security
