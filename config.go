@@ -67,7 +67,7 @@ func (c *Config) setDefaults() {
 		c.NodeURL = "127.0.0.1:7076"
 	}
 	if c.NodeTimeout == 0 {
-		c.NodeTimeout = 10000
+		c.NodeTimeout = 60000
 	}
 	if c.Representative == "" {
 		c.Representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg"
