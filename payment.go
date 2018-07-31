@@ -168,23 +168,22 @@ func (p *Payment) reload() error {
 	return nil
 }
 
-func (p *Payment) check() (err error) {
-	defer func() {
-		p.LastCheckedAt = now()
-		err2 := p.Save()
-		if err != nil {
-			log.Errorln("cannot save payment:", p.Account)
-			err = err2
-		}
-	}()
+func (p *Payment) check() error {
 	log.Debugln("checking payment:", p.Account)
-	err = p.process()
+	err := p.process()
+	p.LastCheckedAt = now()
 	switch err {
 	case errNoPendingBlock, errPaymentNotFulfilled:
 		log.Debug(err)
-		err = nil
+		return p.Save()
+	case nil:
+		return p.Save()
+	default:
+		if err2 := p.Save(); err2 != nil {
+			log.Errorln("cannot save payment:", err2)
+		}
+		return err
 	}
-	return
 }
 
 var locks = NewMapLock()
