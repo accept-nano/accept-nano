@@ -71,6 +71,7 @@ func main() {
 
 	rateLimiter = limiter.New(memory.NewStore(), rate)
 	node = nano.New(config.NodeURL, config.NodeAuthUsername, config.NodeAuthPassword)
+	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
 
 	log.Debugln("opening db:", config.DatabasePath)
 	db, err = bolt.Open(config.DatabasePath, 0600, nil)

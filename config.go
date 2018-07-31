@@ -19,6 +19,8 @@ type Config struct {
 	NodeAuthUsername string
 	// HTTP Basic Authentication password for Node URL.
 	NodeAuthPassword string
+	// Timeout for requests made to Node URL (milliseconds).
+	NodeTimeout uint
 	// Funds will be sent to this address.
 	Account string
 	// Representative for created deposit accounts.
@@ -30,7 +32,7 @@ type Config struct {
 	Seed string
 	// When customer sends the funds, merhchant will be notified at this URL.
 	NotificationURL string
-	// Give some time to unfinished HTTP requests before shutting down the server.
+	// Give some time to unfinished HTTP requests before shutting down the server (milliseconds).
 	ShutdownTimeout uint
 	// Limit payment creation requests to prevent DOS attack.
 	RateLimit string
@@ -38,7 +40,7 @@ type Config struct {
 	ReceiveThreshold string
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
-	// Max allowed time (in seconds) for payment after it is created.
+	// Max allowed time for payment after it is created (seconds).
 	AllowedDuration int
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
@@ -63,6 +65,9 @@ func (c *Config) setDefaults() {
 	}
 	if c.NodeURL == "" {
 		c.NodeURL = "127.0.0.1:7076"
+	}
+	if c.NodeTimeout == 0 {
+		c.NodeTimeout = 10000
 	}
 	if c.Representative == "" {
 		c.Representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg"

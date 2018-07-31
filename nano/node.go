@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/cenkalti/log"
 )
@@ -22,6 +23,10 @@ func New(nodeURL, username, password string) *Node {
 		username: username,
 		password: password,
 	}
+}
+
+func (n *Node) SetTimeout(d time.Duration) {
+	n.client.Timeout = d
 }
 
 func (n *Node) call(action string, args map[string]interface{}, response interface{}) error {
