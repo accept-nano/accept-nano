@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/cenkalti/log"
   packages = ["."]
-  revision = "952ff395141bf8335848d3ef37e634271b7de8bc"
+  revision = "c88a46e9edcea06a3f3e33d7885a979c50eb2039"
 
 [[projects]]
   name = "github.com/coreos/bbolt"
@@ -111,6 +111,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e06ad8407ab69aa2f543695597c885e5725380e01e4aaaa0dfb1b04c0b47e81c"
+  inputs-digest = "304d66a09f9b933c615425ff3facb830bb9d691ef5158254fc5353d5fa99e12f"
   solver-name = "gps-cdcl"
   solver-version = 1
