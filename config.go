@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
@@ -49,6 +50,10 @@ type Config struct {
 
 func (c *Config) Read() error {
 	_, err := toml.DecodeFile(*configPath, c)
+	if err != nil {
+		return err
+	}
+	err = envconfig.Process("", c)
 	if err != nil {
 		return err
 	}
