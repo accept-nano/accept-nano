@@ -1,21 +1,29 @@
 dist: trusty
 language: go
+env:
+  global:
+    secure: "nWPkPZzOddLWqtYcvtDHMYRxFXKyuoO19OpTrjz8zHoWkLQpjPv1xDothXQHmNkOJhpcjbHuty4I0K7f4Cw/mfweyEIxmJXmZHg9YyFiT6gwGCWqjvHb4cZd7togIn1AI7HbNkH2/OIaJTWqkQoKHZTtNVWDfqDQ6yTo2YSBUlvKBvZwZ3M1i325vnZZVFOme33nFx5/srMQNjdHKXtu52fcJvFb+CJJtPt07HfmLZ4o750n2UiqipplTioVrOvjC3o/CXHZk1ZyvS+2gDkfScJ2u2k77gJxzYm8O8oHphBc2rdIfOwxtgZ1n3GiNUAGD2wR1Q/5ZAJS45EREm2hfGRMhidZPjIUgIW5bXx6zQwwwAoWoQqyf9AKYg6wtol0vHOEMtfaCdQ02bvZ3lXbVFVWkVAzkgZiaFaIsWmoLI/rqeVnlYOL/23iQeU8I83Y49nUgEYp28ieR/quW04IGOy6r2kuRcC1uLPJR8vYdHb/7wE1I19XGeBzGq3g11HPeCodMjbRcZtceJ6XYOsBm7q4m7jgIoZTL1t31bycR2CYnuT4dULnoWNOWDuYDiNnMBBok7rvVp7wWms//y7mC0LItOw5bd4TqV205pib/QBHVPKqHsE7hPKJ+jQmKKIJgi1m1kSY7tPKjITzILxYInNJdfx9Gf/Ll0sPkfEhDtA="
 before_install:
 - go get github.com/golang/dep/cmd/dep
 install:
 - dep ensure
 before_script:
-- go build -ldflags="-X main.Version=$TRAVIS_TAG"
+- GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-X main.Version=$TRAVIS_TAG"
 - go get github.com/alecthomas/gometalinter
 - gometalinter --install
 - gometalinter --config=gometalinter.json
 script: go test -v -race ./...
 deploy:
-  provider: releases
-  skip_cleanup: true
-  file: accept-nano
-  on:
-    repo: accept-nano/accept-nano
-    tags: true
-  api_key:
-    secure: moDIzqmcGRea/mBOsBZkz7pffGKDgoEZVgNmnmcQIFVwxoqhjxC5xYrbfdmGrRuCEqQ9fMWP77y5mxQqOltK5mlYkShQLmw5PUqsEf81//d9MreFEBqCgpWBRMTUSIxNIT8jiAUad8hdGE4c6XwER1w1GCXwTopm/41Dmahza5KPhzydKPHZETnskzkWgiXeJvDSb32i5Q3HWe/6liJOrwjLJNUxVpVmb6gvif0i0SsOKkEzt3TkQga4dNxwoSMUKGAMBHshsh8Cas3ShSoS1u14dC5bm1jsOI2hU6VSNDFMGqvrU6fFS1ORdQvtY94q28IMlSfLyZ7uevoMpo7NDEdNO2B5LvP8qm3Vcs2wbBOl6A2R0GWjV5hNMVGLvtf+V9hQ165qAz3ybQ4INQQYCuzHZh17gNI1ZCpFcFJwMPwaBRRjDa4OEonJ2mJGauUJ0mS5qbnyFH3mmi3g9bNyfNQjxZtvbNP+3MDtidDFoD2CpP3+FipEAlqs5vBEVPYlieIvm9nLhoWs0g/eTaGCqwc7Flcu4xrzDry4VpH0+FooCYYHK55CQDx99LxK4s/cd5adqbHxRp7WVjmbJ5fLbxtBC0D+vCZVowES6CWq8dnZ9yJTXHXyg/c9oF17v5Idlxhr633l6Q2ilr1nxDMBEL4en2ioYDJdLffYxCGcPds=
+  - provider: releases
+    skip_cleanup: true
+    file: accept-nano
+    on:
+      repo: accept-nano/accept-nano
+      tags: true
+    api_key:
+      secure: "moDIzqmcGRea/mBOsBZkz7pffGKDgoEZVgNmnmcQIFVwxoqhjxC5xYrbfdmGrRuCEqQ9fMWP77y5mxQqOltK5mlYkShQLmw5PUqsEf81//d9MreFEBqCgpWBRMTUSIxNIT8jiAUad8hdGE4c6XwER1w1GCXwTopm/41Dmahza5KPhzydKPHZETnskzkWgiXeJvDSb32i5Q3HWe/6liJOrwjLJNUxVpVmb6gvif0i0SsOKkEzt3TkQga4dNxwoSMUKGAMBHshsh8Cas3ShSoS1u14dC5bm1jsOI2hU6VSNDFMGqvrU6fFS1ORdQvtY94q28IMlSfLyZ7uevoMpo7NDEdNO2B5LvP8qm3Vcs2wbBOl6A2R0GWjV5hNMVGLvtf+V9hQ165qAz3ybQ4INQQYCuzHZh17gNI1ZCpFcFJwMPwaBRRjDa4OEonJ2mJGauUJ0mS5qbnyFH3mmi3g9bNyfNQjxZtvbNP+3MDtidDFoD2CpP3+FipEAlqs5vBEVPYlieIvm9nLhoWs0g/eTaGCqwc7Flcu4xrzDry4VpH0+FooCYYHK55CQDx99LxK4s/cd5adqbHxRp7WVjmbJ5fLbxtBC0D+vCZVowES6CWq8dnZ9yJTXHXyg/c9oF17v5Idlxhr633l6Q2ilr1nxDMBEL4en2ioYDJdLffYxCGcPds="
+  - provider: script
+    script: sed -i "2iARG TAG=$TRAVIS_TAG" Dockerfile && npm install -g now && now --token $NOW_TOKEN --team accept-nano && now --token $NOW_TOKEN --team accept-nano alias
+    on:
+      repo: accept-nano/accept-nano
+      tags: true
