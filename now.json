@@ -1,0 +1,18 @@
+{
+  "name": "accept-nano",
+  "alias": "accept-nano.now.sh",
+  "type": "docker",
+  "public": true,
+  "files": [
+    "Dockerfile"
+  ],
+  "env": {
+    "DENEME": "@deneme",
+    "NODE_URL": "@node-url",
+    "NODE_AUTH_USERNAME": "@node-auth-username",
+    "NODE_AUTH_PASSWORD": "@node-auth-password",
+    "ACCOUNT": "@account",
+    "SEED": "@seed",
+    "ADMIN_PASSWORD": "@admin-password"
+  }
+}
