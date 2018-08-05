@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
@@ -14,22 +15,22 @@ type Config struct {
 	// Optional TLS certificate and key if you want to serve over HTTPS.
 	CertFile, KeyFile string
 	// URL of a running node.
-	NodeURL string
+	NodeURL string `envconfig:"NODE_URL"`
 	// HTTP Basic Authentication user name for Node URL.
-	NodeAuthUsername string
+	NodeAuthUsername string `envconfig:"NODE_AUTH_USERNAME"`
 	// HTTP Basic Authentication password for Node URL.
-	NodeAuthPassword string
+	NodeAuthPassword string `envconfig:"NODE_AUTH_PASSWORD"`
 	// Timeout for requests made to Node URL (milliseconds).
 	NodeTimeout uint
 	// Funds will be sent to this address.
-	Account string
+	Account string `envconfig:"ACCOUNT"`
 	// Representative for created deposit accounts.
 	Representative string
 	// Seed to generate private keys from.
 	// This is not your Account seed!
 	// You can generate a new seed with -seed flag.
 	// This seed will also be used for signing JWT tokens.
-	Seed string
+	Seed string `envconfig:"SEED"`
 	// When customer sends the funds, merhchant will be notified at this URL.
 	NotificationURL string
 	// Give some time to unfinished HTTP requests before shutting down the server (milliseconds).
@@ -44,11 +45,16 @@ type Config struct {
 	AllowedDuration int
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
-	AdminPassword string
+	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
+	Deneme        string
 }
 
 func (c *Config) Read() error {
 	_, err := toml.DecodeFile(*configPath, c)
+	if err != nil {
+		return err
+	}
+	err = envconfig.Process("", c)
 	if err != nil {
 		return err
 	}
@@ -64,7 +70,7 @@ func (c *Config) setDefaults() {
 		c.ListenAddress = "127.0.0.1:8080"
 	}
 	if c.NodeURL == "" {
-		c.NodeURL = "127.0.0.1:7076"
+		c.NodeURL = "http://127.0.0.1:7076"
 	}
 	if c.NodeTimeout == 0 {
 		c.NodeTimeout = 600000

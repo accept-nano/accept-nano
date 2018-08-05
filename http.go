@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ func runServer() {
 	ratelimitMiddleware := stdlib.NewMiddleware(rateLimiter, stdlib.WithForwardHeader(true))
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleIndex)
 	mux.Handle("/api/pay", ratelimitMiddleware.Handler(http.HandlerFunc(handlePay)))
 	mux.HandleFunc("/api/verify", handleVerify)
 	if config.AdminPassword != "" {
@@ -38,6 +40,20 @@ func runServer() {
 		return
 	}
 	log.Fatal(err)
+}
+
+func handleIndex(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte("accept-nano " + Version + "\nDeneme: " + config.Deneme + "\n"))
+	if err != nil {
+		log.Debug(err)
+	}
+	for _, kv := range os.Environ() {
+		k := strings.Split(kv, "=")[0]
+		_, err := w.Write([]byte(k + "\n"))
+		if err != nil {
+			log.Debug(err)
+		}
+	}
 }
 
 func handlePay(w http.ResponseWriter, r *http.Request) {
