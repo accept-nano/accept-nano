@@ -1,21 +1,29 @@
 dist: trusty
 language: go
+env:
+  global:
+    secure: "KO1+XCh4VVdlW2BYr/5hgAR6oKfxmgv4L0TsZLCLGJVJ9wQrUfoLLy65kL+QYOY1dsyk1fdBl8FpjMcWr7O4KJ+BUEtgegtOVd51rvwmTmsZEonWlZF6IbQtB0NZMb+Mlwe08LwfZLyXo7Obq4m9Wr90BfSYzQfMG8DoNsZLgZRIX/YivZVXJhDr3GdbNUdkWY21jzvQiYfVdbE50Z1QJs4ZHWQjGhUq05UWk4Olz7Ygj4V5Hid8151PiqPQL3wPvllSA6jyjJDNJdIiobYY8TZrVuxgWRN9w1mhsLD0Ol5Uip3xkDrHb0t3R851ZrJ9yj0fFMjJennksE2t41lPbPR+AGGrfeqguLBCfkHGfHEBL+V04BM+TPozhEL+/NxgzpKgVpKByp5K9X1wPfqPrCxExStB3sKKnMt2jxrI8M5JUJuQAQlTnnnyPkVtcDnQj1pJASlxyIHoZtu+tD8OZbtSFg9pc5hxostXsHip7CiiAH9WROLfVOVopNByR7hoXr8TKXyjucf8FGx3u0HgNIAWRSgu4ms18YhKnOa2xhAKA4vEWz9WX4T4TvyYwevMi6si554qdD6O7xkjftmo+T0teLSppO3kHUTszi2+x4UqsfkpCtuTNCCvlsIhXHu7nAKkoBIgT09lpWTePje/6Gm0ee+Q2RqGoi5DF+E6Z98="
 before_install:
 - go get github.com/golang/dep/cmd/dep
 install:
 - dep ensure
 before_script:
-- go build -ldflags="-X main.Version=$TRAVIS_TAG"
+- GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-X main.Version=$TRAVIS_TAG"
 - go get github.com/alecthomas/gometalinter
 - gometalinter --install
 - gometalinter --config=gometalinter.json
 script: go test -v -race ./...
+before_deploy: npm install -g now
 deploy:
-  provider: releases
-  skip_cleanup: true
-  file: accept-nano
-  on:
-    repo: accept-nano/accept-nano
-    tags: true
-  api_key:
-    secure: moDIzqmcGRea/mBOsBZkz7pffGKDgoEZVgNmnmcQIFVwxoqhjxC5xYrbfdmGrRuCEqQ9fMWP77y5mxQqOltK5mlYkShQLmw5PUqsEf81//d9MreFEBqCgpWBRMTUSIxNIT8jiAUad8hdGE4c6XwER1w1GCXwTopm/41Dmahza5KPhzydKPHZETnskzkWgiXeJvDSb32i5Q3HWe/6liJOrwjLJNUxVpVmb6gvif0i0SsOKkEzt3TkQga4dNxwoSMUKGAMBHshsh8Cas3ShSoS1u14dC5bm1jsOI2hU6VSNDFMGqvrU6fFS1ORdQvtY94q28IMlSfLyZ7uevoMpo7NDEdNO2B5LvP8qm3Vcs2wbBOl6A2R0GWjV5hNMVGLvtf+V9hQ165qAz3ybQ4INQQYCuzHZh17gNI1ZCpFcFJwMPwaBRRjDa4OEonJ2mJGauUJ0mS5qbnyFH3mmi3g9bNyfNQjxZtvbNP+3MDtidDFoD2CpP3+FipEAlqs5vBEVPYlieIvm9nLhoWs0g/eTaGCqwc7Flcu4xrzDry4VpH0+FooCYYHK55CQDx99LxK4s/cd5adqbHxRp7WVjmbJ5fLbxtBC0D+vCZVowES6CWq8dnZ9yJTXHXyg/c9oF17v5Idlxhr633l6Q2ilr1nxDMBEL4en2ioYDJdLffYxCGcPds=
+  - provider: releases
+    skip_cleanup: true
+    file: accept-nano
+    on:
+      repo: accept-nano/accept-nano
+      tags: true
+    api_key:
+      secure: "moDIzqmcGRea/mBOsBZkz7pffGKDgoEZVgNmnmcQIFVwxoqhjxC5xYrbfdmGrRuCEqQ9fMWP77y5mxQqOltK5mlYkShQLmw5PUqsEf81//d9MreFEBqCgpWBRMTUSIxNIT8jiAUad8hdGE4c6XwER1w1GCXwTopm/41Dmahza5KPhzydKPHZETnskzkWgiXeJvDSb32i5Q3HWe/6liJOrwjLJNUxVpVmb6gvif0i0SsOKkEzt3TkQga4dNxwoSMUKGAMBHshsh8Cas3ShSoS1u14dC5bm1jsOI2hU6VSNDFMGqvrU6fFS1ORdQvtY94q28IMlSfLyZ7uevoMpo7NDEdNO2B5LvP8qm3Vcs2wbBOl6A2R0GWjV5hNMVGLvtf+V9hQ165qAz3ybQ4INQQYCuzHZh17gNI1ZCpFcFJwMPwaBRRjDa4OEonJ2mJGauUJ0mS5qbnyFH3mmi3g9bNyfNQjxZtvbNP+3MDtidDFoD2CpP3+FipEAlqs5vBEVPYlieIvm9nLhoWs0g/eTaGCqwc7Flcu4xrzDry4VpH0+FooCYYHK55CQDx99LxK4s/cd5adqbHxRp7WVjmbJ5fLbxtBC0D+vCZVowES6CWq8dnZ9yJTXHXyg/c9oF17v5Idlxhr633l6Q2ilr1nxDMBEL4en2ioYDJdLffYxCGcPds="
+  - provider: script
+    script: ls -l && now --public --token $NOW_TOKEN
+    on:
+      master: true
