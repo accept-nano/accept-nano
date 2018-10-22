@@ -27,7 +27,7 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	}
 	currency = strings.ToUpper(currency)
 	url := tickerURL + currency
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // nolint: gosec
 	if err != nil {
 		return
 	}
