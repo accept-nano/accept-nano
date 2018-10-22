@@ -34,6 +34,8 @@ type Payment struct {
 	Amount decimal.Decimal `json:"amount"`
 	// Current balance in Account
 	Balance decimal.Decimal `json:"balance"`
+	// Individual transactions to pay the total amount.
+	SubPayments map[string]SubPayment `json:"subPayments"`
 	// Free text field to pass from customer to merchant.
 	State string `json:"state"`
 	// Set when customer created the payment request via API.
@@ -48,6 +50,11 @@ type Payment struct {
 	ReceivedAt *time.Time `json:"receivedAt"`
 	// Set when Amount is sent to the merchant account.
 	SentAt *time.Time `json:"sentAt"`
+}
+
+type SubPayment struct {
+	Amount  decimal.Decimal `json:"amount"`
+	Account string          `json:"account"`
 }
 
 // LoadPayment fetches a Payment object from database by key.
@@ -271,6 +278,10 @@ func (p *Payment) checkPending() error {
 		}
 		log.Debugln("amount:", amount)
 		totalAmount = totalAmount.Add(amount)
+		if p.SubPayments == nil {
+			p.SubPayments = make(map[string]SubPayment, 1)
+		}
+		p.SubPayments[hash] = SubPayment{Account: pendingBlock.Source, Amount: amount}
 	}
 	log.Debugln("total amount:", totalAmount)
 	if p.Balance != totalAmount {
