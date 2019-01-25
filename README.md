@@ -72,3 +72,5 @@ NotificationURL = "http://localhost:5000/"
 ## Who is using *accept-nano* in production?
 
  - [Put.io](https://put.io)
+
+Please send a PR to list your site if *accept-nano* is helping you to receive NANO payments.
