@@ -16,7 +16,7 @@ func runServer() {
 	ratelimitMiddleware := stdlib.NewMiddleware(rateLimiter, stdlib.WithForwardHeader(true))
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleIndex)
+	mux.HandleFunc("/version", handleVersion)
 	mux.Handle("/api/pay", ratelimitMiddleware.Handler(http.HandlerFunc(handlePay)))
 	mux.HandleFunc("/api/verify", handleVerify)
 	if config.AdminPassword != "" {
@@ -41,8 +41,8 @@ func runServer() {
 	log.Fatal(err)
 }
 
-func handleIndex(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("accept-nano " + Version))
+func handleVersion(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte(Version))
 	if err != nil {
 		log.Debug(err)
 	}
