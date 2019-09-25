@@ -291,10 +291,20 @@ func (p *Payment) checkPending() error {
 			return err
 		}
 	}
-	if p.Balance.LessThan(p.Amount) {
+	if !p.isFulfilled() {
 		return errPaymentNotFulfilled
 	}
 	return nil
+}
+
+func (p *Payment) isFulfilled() bool {
+	if config.UnderPaymentToleranceFixed != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Sub(decimal.NewFromFloat(config.UnderPaymentToleranceFixed))) {
+		return true
+	}
+	if config.UnderPaymentTolerancePercent != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Mul(decimal.NewFromFloat(100-config.UnderPaymentTolerancePercent))) {
+		return true
+	}
+	return p.Balance.GreaterThanOrEqual(p.Amount)
 }
 
 func (p *Payment) receivePending() error {

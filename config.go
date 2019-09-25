@@ -41,6 +41,10 @@ type Config struct {
 	ReceiveThreshold string
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
+	// Up to this amount underpayments are accepted. Amount in NANO.
+	UnderPaymentToleranceFixed float64
+	// Up to this amount underpayments are accepted. Amount in percent.
+	UnderPaymentTolerancePercent float64
 	// Max allowed time for payment after it is created (seconds).
 	AllowedDuration int
 	// Password for accessing admin endpoints.
