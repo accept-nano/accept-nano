@@ -9,7 +9,7 @@ import (
 
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
-	"github.com/coreos/bbolt"
+	bolt "github.com/coreos/bbolt"
 	"github.com/shopspring/decimal"
 )
 

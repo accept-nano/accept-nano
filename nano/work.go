@@ -39,8 +39,8 @@ func validateWork(digest hash.Hash, block []byte, work uint64) bool {
 	binary.LittleEndian.PutUint64(b, work)
 
 	digest.Reset()
-	digest.Write(b)
-	digest.Write(block)
+	_, _ = digest.Write(b)
+	_, _ = digest.Write(block)
 
 	sum := digest.Sum(nil)
 	return binary.LittleEndian.Uint64(sum) >= workThreshold

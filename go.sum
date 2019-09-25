@@ -1,5 +1,7 @@
 github.com/BurntSushi/toml v0.3.0 h1:e1/Ivsx3Z0FVTV0NSOv/aVgbUWyQuzj7DDnFblkRvsY=
 github.com/BurntSushi/toml v0.3.0/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
+github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/cenkalti/log v0.0.0-20180801070934-c88a46e9edce h1:nLD3P94UDqyOA12hAaxlGiE51UJ8z8XFqzLyjn1lzes=
 github.com/cenkalti/log v0.0.0-20180801070934-c88a46e9edce/go.mod h1:tZQKVjO9EM2I22rk9cNNoboHztmdUb2nLgScA/+0Iu4=
 github.com/coreos/bbolt v1.3.0 h1:HIgH5xUWXT914HCI671AxuTTqjj64UOFr7pHn48LUTI=
