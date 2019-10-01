@@ -270,6 +270,9 @@ func (p *Payment) checkPending() error {
 	if err != nil {
 		return err
 	}
+	if len(pendingBlocks) == 0 {
+		return errPaymentNotFulfilled
+	}
 	for hash, pendingBlock := range pendingBlocks {
 		log.Debugf("received new block: %#v", hash)
 		amount, err2 := decimal.NewFromString(pendingBlock.Amount)
