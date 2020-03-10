@@ -18,6 +18,7 @@ func runServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/version", handleVersion)
 	mux.Handle("/api/pay", ratelimitMiddleware.Handler(http.HandlerFunc(handlePay)))
+	mux.Handle("/api/price", ratelimitMiddleware.Handler(http.HandlerFunc(handlePrice)))
 	mux.HandleFunc("/api/verify", handleVerify)
 	if config.AdminPassword != "" {
 		mux.HandleFunc("/admin/payment", handleAdminGetPayment)
@@ -43,6 +44,26 @@ func runServer() {
 
 func handleVersion(w http.ResponseWriter, r *http.Request) {
 	_, err := w.Write([]byte(Version))
+	if err != nil {
+		log.Debug(err)
+	}
+}
+
+func handlePrice(w http.ResponseWriter, r *http.Request) {
+	currency := r.FormValue("currency")
+	price, err := getNanoPrice(currency)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	b, err := json.Marshal(map[string]interface{}{"price": price})
+	if err != nil {
+		log.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	_, err = w.Write(b)
 	if err != nil {
 		log.Debug(err)
 	}

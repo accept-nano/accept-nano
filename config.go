@@ -50,6 +50,8 @@ type Config struct {
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
 	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
+	// Coinmarketcap API Key
+	CoinmarketcapAPIKey string
 }
 
 func (c *Config) Read() error {

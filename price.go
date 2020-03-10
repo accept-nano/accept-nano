@@ -5,20 +5,46 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
 )
 
-const tickerURL = "https://api.coinmarketcap.com/v2/ticker/1567/?convert="
+const (
+	tickerURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
+	nanoID    = "1567"
+	// Coinmarketcap updates quotes every 60 seconds.
+	priceUpdateInterval = 60 * time.Second
+	priceFetchTimeout   = 10 * time.Second
+)
 
-var errBadTickerResponse = errors.New("bad ticker response")
+type PriceWithTimestamp struct {
+	Price     decimal.Decimal
+	FetchedAt time.Time
+}
+
+var (
+	errBadTickerResponse = errors.New("bad ticker response")
+
+	// Cache price
+	mPrice sync.Mutex
+	prices = make(map[string]PriceWithTimestamp)
+
+	priceClient = &http.Client{
+		Timeout: priceFetchTimeout,
+	}
+)
 
 type TickerResponse struct {
-	Data struct {
-		Quotes map[string]interface{}
-	}
+	Data map[string]struct {
+		Quote map[string]struct {
+			Price float64 `json:"price"`
+		} `json:"quote"`
+	} `json:"data"`
 }
 
 func getNanoPrice(currency string) (price decimal.Decimal, err error) {
@@ -26,8 +52,28 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 		currency = "USD"
 	}
 	currency = strings.ToUpper(currency)
-	url := tickerURL + currency
-	resp, err := http.Get(url) // nolint: gosec
+
+	mPrice.Lock()
+	defer mPrice.Unlock()
+
+	if cached, ok := prices[currency]; ok && time.Since(cached.FetchedAt) < priceUpdateInterval {
+		return cached.Price, nil
+	}
+
+	req, err := http.NewRequest("GET", tickerURL, nil)
+	if err != nil {
+		return
+	}
+
+	q := url.Values{}
+	q.Add("id", nanoID)
+	q.Add("convert", currency)
+
+	req.Header.Set("Accepts", "application/json")
+	req.Header.Add("X-CMC_PRO_API_KEY", config.CoinmarketcapAPIKey)
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := priceClient.Do(req)
 	if err != nil {
 		return
 	}
@@ -49,30 +95,25 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	if err != nil {
 		return
 	}
-	currencyValue, ok := response.Data.Quotes[currency]
+	currencyVal, ok := response.Data[nanoID]
 	if !ok {
 		err = errors.New("bad currency")
 		return
 	}
-	currencyMap, ok := currencyValue.(map[string]interface{})
+	quoteVal, ok := currencyVal.Quote[currency]
 	if !ok {
 		err = errBadTickerResponse
 		return
 	}
-	priceValue, ok := currencyMap["price"]
-	if !ok {
-		err = errBadTickerResponse
-		return
-	}
-	priceNumber, ok := priceValue.(float64)
-	if !ok {
-		err = errBadTickerResponse
-		return
-	}
-	price = decimal.NewFromFloat(priceNumber)
+	price = decimal.NewFromFloat(quoteVal.Price)
 	if price.LessThanOrEqual(decimal.NewFromFloat(0)) {
 		err = errors.New("bad price")
 		return
+	}
+	// Cache new value
+	prices[currency] = PriceWithTimestamp{
+		Price:     price,
+		FetchedAt: time.Now(),
 	}
 	return
 }
