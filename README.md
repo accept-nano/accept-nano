@@ -55,6 +55,8 @@ Account = "xrb_your_merchant_account"
 Seed = "12F36345AB0B10557F22B36B5FF241EF09AF7AEA00A40B3F52CCD34640040E92"
 # Payment notifications will be sent to this URL (optional).
 NotificationURL = "http://localhost:5000/"
+# CoinMarketCap API key. Available from https://coinmarketcap.com/api/
+CoinmarketcapAPIKey = "123ab456-cd78-90ef-ab12-34cd56ef7890"
 ```
 
 ## Security
