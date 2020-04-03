@@ -48,6 +48,10 @@ type TickerResponse struct {
 }
 
 func getNanoPrice(currency string) (price decimal.Decimal, err error) {
+	if config.CoinmarketcapAPIKey == "" {
+		err = errors.New("empty CoinmarketcapAPIKey value in config")
+		return
+	}
 	if currency == "" {
 		currency = "USD"
 	}

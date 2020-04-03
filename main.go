@@ -64,6 +64,10 @@ func main() {
 		log.SetLevel(log.DEBUG)
 	}
 
+	if config.CoinmarketcapAPIKey == "" {
+		log.Warning("empty CoinmarketcapAPIKey in config, fiat conversions will not work")
+	}
+
 	rate, err := limiter.NewRateFromFormatted(config.RateLimit)
 	if err != nil {
 		log.Fatal(err)
