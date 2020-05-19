@@ -9,6 +9,7 @@ linters:
     - nakedret
     - dupl
     - funlen
+    - wsl
 issues:
   exclude-rules:
     - path: _test\.go

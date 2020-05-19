@@ -103,10 +103,10 @@ func (p Payment) NextCheck() time.Duration {
 	lastCheck := *p.LastCheckedAt
 
 	now := time.Now().UTC()
-	minWait := 2 * time.Second
-	maxWait := 20 * time.Minute
+	minWait := time.Duration(config.MinNextCheckDuration) * time.Second
+	maxWait := time.Duration(config.MaxNextCheckDuration) * time.Second
 	passed := now.Sub(create)
-	nextWait := passed / 20
+	nextWait := passed / time.Duration(config.NextCheckDurationFactor)
 	if nextWait < minWait {
 		nextWait = minWait
 	} else if nextWait > maxWait {
@@ -133,7 +133,7 @@ func (p *Payment) StartChecking() {
 	if p.finished() {
 		return
 	}
-	checkPaymentWG.Add(1)
+	checkPaymentWG.Add(1) // nolint: gomnd
 	go p.checkLoop()
 }
 
@@ -195,7 +195,7 @@ func (p *Payment) check() error {
 
 var locks = NewMapLock()
 
-func (p *Payment) process() error {
+func (p *Payment) process() error { // nolint: gocognit
 	if p.SentAt == nil {
 		if p.ReceivedAt == nil {
 			if p.NotifiedAt == nil {
@@ -304,7 +304,7 @@ func (p *Payment) isFulfilled() bool {
 	if config.UnderPaymentToleranceFixed != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Sub(NanoToRaw(decimal.NewFromFloat(config.UnderPaymentToleranceFixed)))) {
 		return true
 	}
-	if config.UnderPaymentTolerancePercent != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Mul(decimal.NewFromFloat(100-config.UnderPaymentTolerancePercent))) {
+	if config.UnderPaymentTolerancePercent != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Mul(decimal.NewFromFloat(100-config.UnderPaymentTolerancePercent))) { // nolint: gomnd
 		return true
 	}
 	return p.Balance.GreaterThanOrEqual(p.Amount)
@@ -370,7 +370,7 @@ func (p *Payment) notifyMerchant() error {
 			log.Debug(err2)
 		}
 	}()
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return errors.New("bad notification response")
 	}
 	return nil

@@ -47,6 +47,13 @@ type Config struct {
 	UnderPaymentTolerancePercent float64
 	// Max allowed time for payment after it is created (seconds).
 	AllowedDuration int
+	// Parameter for calculating next check time of the payment.
+	// Time passed since the creation of payment request is divided to this number.
+	NextCheckDurationFactor int
+	// Min allowed duration to check the payment (seconds).
+	MinNextCheckDuration int
+	// Max allowed duration to check the payment (seconds).
+	MaxNextCheckDuration int
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
 	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
@@ -97,5 +104,14 @@ func (c *Config) setDefaults() {
 	}
 	if c.AllowedDuration == 0 {
 		c.AllowedDuration = 3600
+	}
+	if c.NextCheckDurationFactor == 0 {
+		c.NextCheckDurationFactor = 20
+	}
+	if c.MinNextCheckDuration == 0 {
+		c.MinNextCheckDuration = 20
+	}
+	if c.MaxNextCheckDuration == 0 {
+		c.MaxNextCheckDuration = 1200
 	}
 }
