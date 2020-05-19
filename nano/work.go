@@ -7,7 +7,7 @@ import (
 	"runtime"
 
 	"github.com/cenkalti/log"
-	"github.com/golang/crypto/blake2b"
+	"golang.org/x/crypto/blake2b"
 )
 
 var workThreshold uint64 = 0xffffffc000000000

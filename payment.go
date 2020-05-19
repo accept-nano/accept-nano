@@ -9,8 +9,8 @@ import (
 
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
-	bolt "github.com/coreos/bbolt"
 	"github.com/shopspring/decimal"
+	bolt "go.etcd.io/bbolt"
 )
 
 var (
