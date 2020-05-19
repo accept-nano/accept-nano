@@ -15,7 +15,7 @@ import (
 	"github.com/cenkalti/log"
 	"github.com/ulule/limiter"
 	"github.com/ulule/limiter/drivers/store/memory"
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 const paymentsBucket = "payments"
@@ -26,7 +26,7 @@ var (
 	configPath        = flag.String("config", "config.toml", "config file path")
 	version           = flag.Bool("version", false, "display version and exit")
 	config            Config
-	db                *bolt.DB
+	db                *bbolt.DB
 	server            http.Server
 	rateLimiter       *limiter.Limiter
 	node              *nano.Node
@@ -78,13 +78,13 @@ func main() {
 	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
 
 	log.Debugln("opening db:", config.DatabasePath)
-	db, err = bolt.Open(config.DatabasePath, 0600, nil)
+	db, err = bbolt.Open(config.DatabasePath, 0600, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Debugln("db has been opened successfully")
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bbolt.Tx) error {
 		_, txErr := tx.CreateBucketIfNotExists([]byte(paymentsBucket))
 		return txErr
 	})
@@ -93,7 +93,7 @@ func main() {
 	}
 
 	// Check existing payments.
-	err = db.View(func(tx *bolt.Tx) error {
+	err = db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
 		return b.ForEach(func(k, v []byte) error {
 			payment, err2 := LoadPayment(k)

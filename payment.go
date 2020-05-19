@@ -10,7 +10,7 @@ import (
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
-	bolt "go.etcd.io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 var (
@@ -60,7 +60,7 @@ type SubPayment struct {
 // LoadPayment fetches a Payment object from database by key.
 func LoadPayment(key []byte) (*Payment, error) {
 	var value []byte
-	err := db.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
 		v := b.Get(key)
 		if v == nil {
@@ -88,7 +88,7 @@ func (p *Payment) Save() error {
 	if err != nil {
 		return err
 	}
-	return db.Update(func(tx *bolt.Tx) error {
+	return db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
 		return b.Put(key, value)
 	})
