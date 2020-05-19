@@ -106,13 +106,13 @@ func (p Payment) NextCheck() time.Duration {
 	minWait := 2 * time.Second
 	maxWait := 20 * time.Minute
 	passed := now.Sub(create)
-	next := passed / 20
-	if next < minWait {
-		next = minWait
-	} else if next > maxWait {
-		next = maxWait
+	nextWait := passed / 20
+	if nextWait < minWait {
+		nextWait = minWait
+	} else if nextWait > maxWait {
+		nextWait = maxWait
 	}
-	nextCheck := lastCheck.Add(next)
+	nextCheck := lastCheck.Add(nextWait)
 	return nextCheck.Sub(now)
 }
 
