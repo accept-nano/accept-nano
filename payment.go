@@ -133,7 +133,7 @@ func (p *Payment) StartChecking() {
 	if p.finished() {
 		return
 	}
-	checkPaymentWG.Add(1) // nolint: gomnd
+	checkPaymentWG.Add(1)
 	go p.checkLoop()
 }
 
@@ -196,7 +196,7 @@ func (p *Payment) check() error {
 var locks = NewMapLock()
 
 func (p *Payment) process() error { // nolint: gocognit
-	if p.SentAt == nil {
+	if p.SentAt == nil { // nolint: nestif
 		if p.ReceivedAt == nil {
 			if p.NotifiedAt == nil {
 				if p.FulfilledAt == nil {
