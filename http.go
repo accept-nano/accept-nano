@@ -21,6 +21,7 @@ func runServer() {
 	mux.Handle("/api/price", ratelimitMiddleware.Handler(http.HandlerFunc(handlePrice)))
 	mux.HandleFunc("/api/verify", handleVerify)
 	if config.AdminPassword != "" {
+		mux.HandleFunc("/admin/payments/active", handleAdminGetActivePayments)
 		mux.HandleFunc("/admin/payment", handleAdminGetPayment)
 		mux.HandleFunc("/admin/check", handleAdminCheckPayment)
 		mux.HandleFunc("/admin/receive", handleAdminReceivePending)

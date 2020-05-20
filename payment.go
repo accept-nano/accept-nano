@@ -81,6 +81,19 @@ func LoadPayment(key []byte) (*Payment, error) {
 	return &payment, err
 }
 
+func LoadActivePayments() ([]*Payment, error) {
+	ret := make([]*Payment, 0)
+	err := db.View(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte(paymentsBucket))
+		return b.ForEach(func(k, v []byte) error {
+			p := new(Payment)
+			ret = append(ret, p)
+			return json.Unmarshal(v, p)
+		})
+	})
+	return ret, err
+}
+
 // Save the Payment object in database.
 func (p *Payment) Save() error {
 	key := []byte(p.Account)
