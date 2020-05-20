@@ -87,8 +87,14 @@ func LoadActivePayments() ([]*Payment, error) {
 		b := tx.Bucket([]byte(paymentsBucket))
 		return b.ForEach(func(k, v []byte) error {
 			p := new(Payment)
-			ret = append(ret, p)
-			return json.Unmarshal(v, p)
+			err := json.Unmarshal(v, p)
+			if err != nil {
+				return err
+			}
+			if !p.finished() {
+				ret = append(ret, p)
+			}
+			return nil
 		})
 	})
 	return ret, err
@@ -129,11 +135,9 @@ func (p Payment) NextCheck() time.Duration {
 	return nextCheck.Sub(now)
 }
 
+// finished returns true after all operations are complete or allowed duration for payment is passed.
 func (p Payment) finished() bool {
-	if now().Sub(p.CreatedAt) > time.Duration(config.AllowedDuration)*time.Second {
-		return true
-	}
-	return p.SentAt != nil
+	return p.SentAt != nil || now().Sub(p.CreatedAt) > time.Duration(config.AllowedDuration)*time.Second
 }
 
 func (p Payment) remainingDuration() time.Duration {
