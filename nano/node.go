@@ -63,10 +63,10 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 		return err
 	}
 	if errorResponse.Message != nil {
-		return errorResponse
+		return &errorResponse
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return HTTPError{
+		return &HTTPError{
 			StatusCode: resp.StatusCode,
 			Body:       string(body),
 		}

@@ -22,7 +22,7 @@ func (n *Node) AccountInfo(account string) (*AccountInfo, error) {
 	}
 	var response AccountInfo
 	err := n.call("account_info", args, &response)
-	if err2, ok := err.(NodeError); ok && err2.Error() == "Account not found" {
+	if err2, ok := err.(*NodeError); ok && err2.Error() == "Account not found" {
 		return nil, ErrAccountNotFound
 	}
 	return &response, err
