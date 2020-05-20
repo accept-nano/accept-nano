@@ -93,20 +93,12 @@ func main() {
 	}
 
 	// Check existing payments.
-	err = db.View(func(tx *bbolt.Tx) error {
-		b := tx.Bucket([]byte(paymentsBucket))
-		return b.ForEach(func(k, v []byte) error {
-			payment, err2 := LoadPayment(k)
-			if err != nil {
-				log.Error(err2)
-				return nil
-			}
-			payment.StartChecking()
-			return nil
-		})
-	})
+	payments, err := LoadActivePayments()
 	if err != nil {
 		log.Fatal(err)
+	}
+	for _, p := range payments {
+		p.StartChecking()
 	}
 
 	go runServer()

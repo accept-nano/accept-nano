@@ -89,7 +89,8 @@ func LoadActivePayments() ([]*Payment, error) {
 			p := new(Payment)
 			err := json.Unmarshal(v, p)
 			if err != nil {
-				return err
+				log.Error(err)
+				return nil
 			}
 			if !p.finished() {
 				ret = append(ret, p)
@@ -147,9 +148,6 @@ func (p Payment) remainingDuration() time.Duration {
 
 // StartChecking starts a goroutine to check the payment periodically.
 func (p *Payment) StartChecking() {
-	if p.finished() {
-		return
-	}
 	checkPaymentWG.Add(1)
 	go p.checkLoop()
 }
