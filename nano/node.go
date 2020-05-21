@@ -11,17 +11,13 @@ import (
 )
 
 type Node struct {
-	url      string
-	username string
-	password string
-	client   http.Client
+	url    string
+	client http.Client
 }
 
-func New(nodeURL, username, password string) *Node {
+func New(nodeURL string) *Node {
 	return &Node{
-		url:      nodeURL,
-		username: username,
-		password: password,
+		url: nodeURL,
 	}
 }
 
@@ -44,9 +40,6 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	if n.username != "" {
-		req.SetBasicAuth(n.username, n.password)
-	}
 	resp, err := n.client.Do(req)
 	if err != nil {
 		return err

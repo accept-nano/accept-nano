@@ -74,7 +74,7 @@ func main() {
 	}
 
 	rateLimiter = limiter.New(memory.NewStore(), rate)
-	node = nano.New(config.NodeURL, config.NodeAuthUsername, config.NodeAuthPassword)
+	node = nano.New(config.NodeURL)
 	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
 
 	log.Debugln("opening db:", config.DatabasePath)

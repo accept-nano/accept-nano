@@ -16,10 +16,6 @@ type Config struct {
 	CertFile, KeyFile string
 	// URL of a running node.
 	NodeURL string `envconfig:"NODE_URL"`
-	// HTTP Basic Authentication user name for Node URL.
-	NodeAuthUsername string `envconfig:"NODE_AUTH_USERNAME"`
-	// HTTP Basic Authentication password for Node URL.
-	NodeAuthPassword string `envconfig:"NODE_AUTH_PASSWORD"`
 	// Timeout for requests made to Node URL (milliseconds).
 	NodeTimeout uint
 	// Funds will be sent to this address.
