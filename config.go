@@ -110,7 +110,7 @@ func (c *Config) setDefaults() {
 		c.NextCheckDurationFactor = 20
 	}
 	if c.MinNextCheckDuration == 0 {
-		c.MinNextCheckDuration = 20
+		c.MinNextCheckDuration = 10
 	}
 	if c.MaxNextCheckDuration == 0 {
 		c.MaxNextCheckDuration = 1200
