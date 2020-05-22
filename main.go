@@ -33,6 +33,7 @@ var (
 	stopCheckPayments = make(chan struct{})
 	checkPaymentWG    sync.WaitGroup
 	confirmations     = make(chan string)
+	verifications     Hub
 )
 
 func main() {

@@ -10,6 +10,7 @@ import (
 	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
 	"github.com/ulule/limiter/drivers/middleware/stdlib"
+	"golang.org/x/net/websocket"
 )
 
 func runServer() {
@@ -20,6 +21,7 @@ func runServer() {
 	mux.Handle("/api/pay", ratelimitMiddleware.Handler(http.HandlerFunc(handlePay)))
 	mux.Handle("/api/price", ratelimitMiddleware.Handler(http.HandlerFunc(handlePrice)))
 	mux.HandleFunc("/api/verify", handleVerify)
+	mux.Handle("/websocket", websocket.Handler(handleWebsocket))
 	if config.AdminPassword != "" {
 		mux.HandleFunc("/admin/payments/active", handleAdminGetActivePayments)
 		mux.HandleFunc("/admin/payment", handleAdminGetPayment)
@@ -178,4 +180,42 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Debug(err)
 	}
+}
+
+func handleWebsocket(conn *websocket.Conn) {
+	r := conn.Request()
+	token := r.FormValue("token")
+	if token == "" {
+		return
+	}
+	claims, err := ParseToken(token)
+	if err != nil {
+		return
+	}
+	cancel := verifications.Subscribe(Account(claims.Account), func(e Event) {
+		pv := e.(PaymentVerified)
+		response := NewResponse(&pv.Payment, token)
+		b, err := json.Marshal(&response)
+		if err != nil {
+			return
+		}
+		_, _ = conn.Write(b)
+	})
+	defer cancel()
+	const readBufferSize = 1024
+	buf := make([]byte, readBufferSize)
+	for {
+		_, err := conn.Read(buf)
+		if err != nil {
+			return
+		}
+	}
+}
+
+type PaymentVerified struct {
+	Payment
+}
+
+func (p PaymentVerified) Account() Account {
+	return Account(p.Payment.Account)
 }

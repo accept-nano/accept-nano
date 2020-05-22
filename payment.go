@@ -227,6 +227,7 @@ func (p *Payment) process() error { // nolint: gocognit
 					if err != nil {
 						return err
 					}
+					go verifications.Publish(PaymentVerified{Payment: *p})
 				}
 				err := p.notifyMerchant()
 				if err != nil {
@@ -237,6 +238,7 @@ func (p *Payment) process() error { // nolint: gocognit
 				if err != nil {
 					return err
 				}
+				go verifications.Publish(PaymentVerified{Payment: *p})
 			}
 			err := p.receivePending()
 			if err != nil {
