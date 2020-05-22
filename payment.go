@@ -160,23 +160,26 @@ func (p *Payment) checkLoop() {
 		}
 		select {
 		case <-time.After(p.NextCheck()):
-			locks.Lock(p.Account)
-			err := p.reload()
-			if err != nil {
-				locks.Unlock(p.Account)
-				log.Errorln("cannot load payment:", p.Account)
-				continue
-			}
-			err = p.check()
-			if err != nil {
-				locks.Unlock(p.Account)
-				log.Errorf("error checking %s: %s", p.Account, err)
-				continue
-			}
-			locks.Unlock(p.Account)
+			p.checkOnce()
 		case <-stopCheckPayments:
 			return
 		}
+	}
+}
+
+func (p *Payment) checkOnce() {
+	locks.Lock(p.Account)
+	defer locks.Unlock(p.Account)
+
+	err := p.reload()
+	if err != nil {
+		log.Errorln("cannot load payment:", p.Account)
+		return
+	}
+	err = p.check()
+	if err != nil {
+		log.Errorf("error checking %s: %s", p.Account, err)
+		return
 	}
 }
 
