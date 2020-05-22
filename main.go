@@ -32,6 +32,7 @@ var (
 	node              *nano.Node
 	stopCheckPayments = make(chan struct{})
 	checkPaymentWG    sync.WaitGroup
+	confirmations     = make(chan string)
 )
 
 func main() {
@@ -99,6 +100,11 @@ func main() {
 	}
 	for _, p := range payments {
 		p.StartChecking()
+	}
+
+	if config.NodeWebsocketURL != "" {
+		go runSubscriber()
+		go runChecker()
 	}
 
 	go runServer()

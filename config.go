@@ -16,6 +16,8 @@ type Config struct {
 	CertFile, KeyFile string
 	// URL of a running node.
 	NodeURL string `envconfig:"NODE_URL"`
+	// Websocket URL of a running node.
+	NodeWebsocketURL string `envconfig:"NODE_WEBSOCKET_URL"`
 	// Timeout for requests made to Node URL (milliseconds).
 	NodeTimeout uint
 	// Funds will be sent to this address.
@@ -79,6 +81,9 @@ func (c *Config) setDefaults() {
 	}
 	if c.NodeURL == "" {
 		c.NodeURL = "http://127.0.0.1:7076"
+	}
+	if c.NodeWebsocketURL == "" {
+		c.NodeWebsocketURL = "ws://127.0.0.1:7078"
 	}
 	if c.NodeTimeout == 0 {
 		c.NodeTimeout = 600000
