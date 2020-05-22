@@ -117,7 +117,7 @@ func (p *Payment) Save() error {
 // NextCheck returns the next timestamp payment should be checked at.
 func (p Payment) NextCheck() time.Duration {
 	if p.LastCheckedAt == nil {
-		return 0
+		return time.Duration(config.MinNextCheckDuration) * time.Second
 	}
 	create := p.CreatedAt
 	lastCheck := *p.LastCheckedAt
