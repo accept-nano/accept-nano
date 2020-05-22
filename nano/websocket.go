@@ -1,7 +1,6 @@
 package nano
 
 import (
-	"encoding/json"
 	"errors"
 	"math/rand"
 	"strconv"
@@ -10,18 +9,14 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const websocketBufferSize = 1 << 20
-
 type Websocket struct {
 	url  string
 	conn *websocket.Conn
-	buf  []byte
 }
 
 func NewWebsocket(wsURL string) *Websocket {
 	return &Websocket{
 		url: wsURL,
-		buf: make([]byte, websocketBufferSize),
 	}
 }
 
@@ -57,14 +52,10 @@ func (w *Websocket) Send(action, topic string, ack bool, options map[string]inte
 	if len(options) > 0 {
 		m["options"] = options
 	}
-	b, err := json.Marshal(m)
+	log.Debugf("sending websocket message: %#v", m)
+	err := websocket.JSON.Send(w.conn, m)
 	if err != nil {
 		return nil
-	}
-	log.Debugf("sending websocket message: %#v", m)
-	_, err = w.conn.Write(b)
-	if err != nil {
-		return err
 	}
 	if ack {
 		var ackMsg struct {
@@ -85,16 +76,5 @@ func (w *Websocket) Send(action, topic string, ack bool, options map[string]inte
 var errInvalidAck = errors.New("invalid ack")
 
 func (w *Websocket) Recv(msg interface{}) error {
-	var n int
-	var err error
-	for {
-		n, err = w.conn.Read(w.buf)
-		if err != nil {
-			return err
-		}
-		if n != 0 {
-			break
-		}
-	}
-	return json.Unmarshal(w.buf[:n], msg)
+	return websocket.JSON.Receive(w.conn, msg)
 }
