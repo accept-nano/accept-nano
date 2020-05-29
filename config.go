@@ -89,7 +89,7 @@ func (c *Config) setDefaults() {
 		c.NodeTimeout = 600000
 	}
 	if c.Representative == "" {
-		c.Representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg"
+		c.Representative = "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r"
 	}
 	if c.ShutdownTimeout == 0 {
 		c.ShutdownTimeout = 5000
