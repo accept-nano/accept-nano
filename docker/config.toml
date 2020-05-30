@@ -1,0 +1,10 @@
+# Path to the database file
+DatabasePath = "/opt/data/accept-nano.db"
+# Your Nano node RPC URL
+NodeURL = "http://nano_node_1:7076/"
+# The WebSocket URL to your Nano node
+NodeWebsocketURL = "ws://nano_node_1:7078"
+# Set this to your merchant account.
+Account = "nano_1youraccount3fp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r"
+# CoinMarketCap API key. Available from https://coinmarketcap.com/api/
+CoinmarketcapAPIKey = "123ab456-cd78-90ef-ab12-34cd56ef7890"

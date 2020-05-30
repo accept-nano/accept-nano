@@ -22,6 +22,44 @@ Payment gateway for [NANO](https://nano.org)
    ```$ accept-nano -config /path/to/the/config.toml```
  - You can run *accept-nano* and NANO node software in the same host but it is not necessary.
 
+## Docker
+
+You can create a Docker container for accept-nano that works perfectly with your [Docker Nano Node](https://docs.nano.org/running-a-node/docker-management/)!
+The configuration and database are stored at `/opt/data` so you should map that folder to your host.
+
+#### Pulling Docker image
+
+    docker pull docker.pkg.github.com/accept-nano/accept-nano/accept-nano
+
+#### Standalone
+
+    docker run -d -p 8080:8080 -v ~/accept-nano:/opt/data docker.pkg.github.com/accept-nano/accept-nano/accept-nano
+
+#### Docker Compose
+
+Example configuration:
+
+```
+version: '3'
+services:
+  monitor:
+    image: "docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
+    restart: "unless-stopped"
+    ports:
+     - "8080:8080"
+    volumes:
+     - "~/accept-nano:/opt/data"
+  node:
+    image: "nanocurrency/nano"
+    restart: "unless-stopped"
+    ports:
+     - "7075:7075/udp"
+     - "7075:7075"
+     - ":::7076:7076"
+    volumes:
+     - "~:/root"
+```
+
 ## How it works?
 
  - *accept-nano* is a HTTP server with 2 primary endpoints.
