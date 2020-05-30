@@ -39,7 +39,7 @@ The configuration and database are stored at `/opt/data` so you should map that 
 
 Example configuration:
 
-```
+```yaml
 version: '3'
 services:
   monitor:
