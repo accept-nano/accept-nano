@@ -43,7 +43,7 @@ Example configuration:
 version: '3'
 services:
   monitor:
-    image: "docker pull docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
+    image: "docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
     restart: "unless-stopped"
     ports:
      - "8080:8080"
