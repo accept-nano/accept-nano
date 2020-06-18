@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/cenkalti/log v0.0.0-20180808170110-e1cf6d40cbc3 h1:nv2JM6LWP694ueOJwZ5OcSzKYK7JZ4v7sXrbTLW4+7A=
-github.com/cenkalti/log v0.0.0-20180808170110-e1cf6d40cbc3/go.mod h1:tZQKVjO9EM2I22rk9cNNoboHztmdUb2nLgScA/+0Iu4=
+github.com/cenkalti/log v1.0.0 h1:0SITaDyovlmHFLaV+qenYmDxh8TNgxbJscMyn4W8XWk=
+github.com/cenkalti/log v1.0.0/go.mod h1:Kbz0XnbnTBtcJN8yeRuPW/9SNtP1tx5SwjU+357jKYM=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
