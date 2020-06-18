@@ -9,12 +9,12 @@ import (
 	"github.com/cenkalti/log"
 	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
-	"github.com/ulule/limiter/drivers/middleware/stdlib"
+	"github.com/ulule/limiter/v3/drivers/middleware/stdlib"
 	"golang.org/x/net/websocket"
 )
 
 func runServer() {
-	ratelimitMiddleware := stdlib.NewMiddleware(rateLimiter, stdlib.WithForwardHeader(true))
+	ratelimitMiddleware := stdlib.NewMiddleware(rateLimiter)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/version", handleVersion)

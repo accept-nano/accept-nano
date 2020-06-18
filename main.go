@@ -13,8 +13,8 @@ import (
 
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
-	"github.com/ulule/limiter"
-	"github.com/ulule/limiter/drivers/store/memory"
+	"github.com/ulule/limiter/v3"
+	"github.com/ulule/limiter/v3/drivers/store/memory"
 	"go.etcd.io/bbolt"
 )
 
@@ -75,7 +75,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	rateLimiter = limiter.New(memory.NewStore(), rate)
+	rateLimiter = limiter.New(memory.NewStore(), rate, limiter.WithTrustForwardHeader(true))
 	node = nano.New(config.NodeURL)
 	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
 
