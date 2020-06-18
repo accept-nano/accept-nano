@@ -11,8 +11,8 @@ import "testing"
 // }
 
 func BenchmarkGenerateWork(b *testing.B) {
-	workThreshold = 0xfff0000000000000
+	workThresholdForSend = 0xfff0000000000000
 	for n := 0; n < b.N; n++ {
-		GenerateWork("42473809202D318F7DFA794B277E78AE3824836A674B1B88BEC1BBC277A87D52")
+		GenerateWork("42473809202D318F7DFA794B277E78AE3824836A674B1B88BEC1BBC277A87D52", true)
 	}
 }
