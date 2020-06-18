@@ -10,8 +10,8 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/ulule/limiter/v3 v3.5.0
-	go.etcd.io/bbolt v1.3.4
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
-	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2
-	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
+	go.etcd.io/bbolt v1.3.5
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+	golang.org/x/sys v0.0.0-20200615200032-f1bc736245b1 // indirect
 )
