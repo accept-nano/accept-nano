@@ -42,7 +42,7 @@ Example configuration:
 ```yaml
 version: '3'
 services:
-  monitor:
+  accept-nano:
     image: "docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
     restart: "unless-stopped"
     ports:
