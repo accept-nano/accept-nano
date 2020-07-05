@@ -10,9 +10,10 @@ import (
 	"golang.org/x/crypto/blake2b"
 )
 
-var workThreshold uint64 = 0xffffffc000000000
+var workThresholdForSend uint64 = 0xfffffff800000000
+var workThresholdForRecv uint64 = 0xffffffc000000000
 
-func GenerateWork(hash string) (string, error) {
+func GenerateWork(hash string, forSend bool) (string, error) {
 	b, err := hex.DecodeString(hash)
 	if err != nil {
 		return "", err
@@ -22,9 +23,15 @@ func GenerateWork(hash string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	var workThreshold uint64
+	if forSend {
+		workThreshold = workThresholdForSend
+	} else {
+		workThreshold = workThresholdForRecv
+	}
 	var nonce uint64
 	log.Debug("starting work")
-	for ; !validateWork(digest, b, nonce); nonce++ {
+	for ; !validateWork(digest, b, nonce, workThreshold); nonce++ {
 		if nonce%1000 == 0 {
 			runtime.Gosched()
 		}
@@ -35,7 +42,7 @@ func GenerateWork(hash string) (string, error) {
 	return hex.EncodeToString(work), nil
 }
 
-func validateWork(digest hash.Hash, block []byte, work uint64) bool {
+func validateWork(digest hash.Hash, block []byte, work uint64, workThreshold uint64) bool {
 	b := make([]byte, 8)
 	binary.LittleEndian.PutUint64(b, work)
 

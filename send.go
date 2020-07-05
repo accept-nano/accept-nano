@@ -19,7 +19,7 @@ func sendAll(account, destination, privateKey string) error {
 	if accountBalance.IsZero() {
 		return nil
 	}
-	work, err := nano.GenerateWork(info.Frontier)
+	work, err := nano.GenerateWork(info.Frontier, true)
 	if err != nil {
 		return err
 	}

@@ -12,3 +12,6 @@
 *.out
 
 vendor/
+
+# No Docker compose file 
+docker-compose.yml

@@ -15,12 +15,50 @@ Payment gateway for [NANO](https://nano.org)
 
 ## Running
 
- - You must have a running NANO node. It's trivial to set one up. You can find instructions at https://developers.nano.org/guides/node-setup/
- - In NANO node [config](https://github.com/nanocurrency/raiblocks/wiki/config.json), `"rpc_enable"` and `"enable_control"` options must be enabled.
+ - You must have a running NANO node. It's trivial to set one up. You can find instructions at https://docs.nano.org/running-a-node/node-setup/
+ - In NANO node [config](https://docs.nano.org/running-a-node/configuration/), `"rpc_enable"` and `"enable_control"` options must be enabled.
  - Create a config file for *accept-nano*. See [Config section](#config) below.
  - Run it with:
    ```$ accept-nano -config /path/to/the/config.toml```
  - You can run *accept-nano* and NANO node software in the same host but it is not necessary.
+
+## Docker
+
+You can create a Docker container for accept-nano that works perfectly with your [Docker Nano Node](https://docs.nano.org/running-a-node/docker-management/)!
+The configuration and database are stored at `/opt/data` so you should map that folder to your host.
+
+#### Pulling Docker image
+
+    docker pull docker.pkg.github.com/accept-nano/accept-nano/accept-nano
+
+#### Standalone
+
+    docker run -d -p 8080:8080 -v ~/accept-nano:/opt/data docker.pkg.github.com/accept-nano/accept-nano/accept-nano
+
+#### Docker Compose
+
+Example configuration:
+
+```yaml
+version: '3'
+services:
+  monitor:
+    image: "docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
+    restart: "unless-stopped"
+    ports:
+     - "8080:8080"
+    volumes:
+     - "~/accept-nano:/opt/data"
+  node:
+    image: "nanocurrency/nano"
+    restart: "unless-stopped"
+    ports:
+     - "7075:7075/udp"
+     - "7075:7075"
+     - ":::7076:7076"
+    volumes:
+     - "~:/root"
+```
 
 ## How it works?
 
@@ -50,7 +88,7 @@ DatabasePath = "./accept-nano.db"
 ListenAddress = "127.0.0.1:8080"
 NodeURL = "http://localhost:7076/"
 # Don't forget to set your merchant account.
-Account = "xrb_your_merchant_account"
+Account = "nano_1youraccount3fp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r"
 # Generate a new random seed with "accept-nano -seed" command and keep it secret.
 Seed = "12F36345AB0B10557F22B36B5FF241EF09AF7AEA00A40B3F52CCD34640040E92"
 # Payment notifications will be sent to this URL (optional).

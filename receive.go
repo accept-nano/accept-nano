@@ -35,7 +35,7 @@ func receiveBlock(hash, amount, account, privateKey, publicKey string) error {
 	default:
 		return err
 	}
-	work, err := nano.GenerateWork(workHash)
+	work, err := nano.GenerateWork(workHash, false)
 	if err != nil {
 		return err
 	}
