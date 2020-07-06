@@ -1,17 +1,22 @@
-FROM golang:1.14
+FROM golang:1.14.4-alpine3.12 AS builder
 
-WORKDIR /go/src/app
+WORKDIR /go/src/accept-nano
 
 COPY go.mod go.sum ./
-RUN go mod download -x
+RUN go mod download
 
 COPY . .
-RUN go install -v
+RUN go install
 
-# entry shell
-COPY docker/entry.sh /entry.sh
+###############################################################################
 
-# go for it!
-CMD ["/bin/bash", "/entry.sh"]
+FROM alpine:3.12.0
+
+COPY --from=builder /go/bin/accept-nano /usr/bin/accept-nano
+RUN chmod +x /usr/bin/accept-nano
+
+COPY docker ./docker
+
+CMD ["/bin/sh", "/docker/entry.sh"]
 
 EXPOSE 8080
