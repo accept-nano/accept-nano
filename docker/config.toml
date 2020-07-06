@@ -1,5 +1,7 @@
 # Path to the database file
 DatabasePath = "/opt/data/accept-nano.db"
+# Listen to all interfaces (in container) at 8080
+ListenAddress = "0.0.0.0:8080"
 # Your Nano node RPC URL
 NodeURL = "http://nano_node_1:7076/"
 # The WebSocket URL to your Nano node
