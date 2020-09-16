@@ -18,3 +18,4 @@ issues:
       linters:
         - goconst
         - errcheck
+        - testpackage

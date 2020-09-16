@@ -1,4 +1,4 @@
-package nano // nolint: testpackage
+package nano
 
 import "testing"
 
