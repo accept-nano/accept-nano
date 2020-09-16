@@ -35,12 +35,7 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", n.url, bytes.NewReader(data))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := n.client.Do(req)
+	resp, err := n.client.Post(n.url, "application/json", bytes.NewReader(data)) // nolint:noctx // client timeout set
 	if err != nil {
 		return err
 	}

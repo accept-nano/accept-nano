@@ -1,8 +1,17 @@
 package main
 
 import (
+	"time"
+
 	"github.com/BurntSushi/toml"
 	"github.com/kelseyhightower/envconfig"
+)
+
+const (
+	defaultNodeTimeout                 = 600000
+	defaultNotificationRequestTimeout  = time.Minute
+	defaultCoinmarketcapRequestTimeout = 10 * time.Second
+	defaultCoinmarketcapCacheDuration  = time.Minute
 )
 
 type Config struct {
@@ -33,6 +42,8 @@ type Config struct {
 	Seed string `envconfig:"SEED"`
 	// When customer sends the funds, merhchant will be notified at this URL.
 	NotificationURL string
+	// Timeout for requests made to the merchant's NotificationURL
+	NotificationRequestTimeout time.Duration
 	// Give some time to unfinished HTTP requests before shutting down the server (milliseconds).
 	ShutdownTimeout uint
 	// Limit payment creation requests to prevent DOS attack.
@@ -59,6 +70,10 @@ type Config struct {
 	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
 	// Coinmarketcap API Key
 	CoinmarketcapAPIKey string
+	// Timeout for HTTP requests made to Coinmarketcap
+	CoinmarketcapRequestTimeout time.Duration
+	// Cache price value for a duration
+	CoinmarketcapCacheDuration time.Duration
 }
 
 func (c *Config) Read() error {
@@ -88,7 +103,7 @@ func (c *Config) setDefaults() {
 		c.NodeWebsocketURL = "ws://127.0.0.1:7078"
 	}
 	if c.NodeTimeout == 0 {
-		c.NodeTimeout = 600000
+		c.NodeTimeout = defaultNodeTimeout
 	}
 	if c.Representative == "" {
 		c.Representative = "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r"
@@ -116,5 +131,14 @@ func (c *Config) setDefaults() {
 	}
 	if c.MaxNextCheckDuration == 0 {
 		c.MaxNextCheckDuration = 1200
+	}
+	if c.CoinmarketcapRequestTimeout == 0 {
+		c.CoinmarketcapRequestTimeout = defaultCoinmarketcapRequestTimeout
+	}
+	if c.CoinmarketcapCacheDuration == 0 {
+		c.CoinmarketcapCacheDuration = defaultCoinmarketcapCacheDuration
+	}
+	if c.NotificationRequestTimeout == 0 {
+		c.NotificationRequestTimeout = defaultNotificationRequestTimeout
 	}
 }

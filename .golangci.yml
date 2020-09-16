@@ -11,6 +11,7 @@ linters:
     - funlen
     - wsl
     - goerr113
+    - nlreturn
 issues:
   exclude-rules:
     - path: _test\.go

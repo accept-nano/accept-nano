@@ -18,6 +18,8 @@ var (
 	errPaymentNotFulfilled = errors.New("payment not fulfilled")
 )
 
+var notificationClient http.Client
+
 // Payment is the data type stored in the database in JSON format.
 type Payment struct {
 	// Customer sends money to this account.
@@ -381,7 +383,7 @@ func (p *Payment) notifyMerchant() error {
 	if err != nil {
 		return err
 	}
-	resp, err := http.Post(config.NotificationURL, "application/json", bytes.NewReader(data))
+	resp, err := notificationClient.Post(config.NotificationURL, "application/json", bytes.NewReader(data)) // nolint:noctx // client timeout set
 	if err != nil {
 		return err
 	}

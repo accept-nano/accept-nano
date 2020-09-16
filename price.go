@@ -17,9 +17,6 @@ import (
 const (
 	tickerURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
 	nanoID    = "1567"
-	// Coinmarketcap updates quotes every 60 seconds.
-	priceUpdateInterval = 60 * time.Second
-	priceFetchTimeout   = 10 * time.Second
 )
 
 type PriceWithTimestamp struct {
@@ -30,13 +27,11 @@ type PriceWithTimestamp struct {
 var (
 	errBadTickerResponse = errors.New("bad ticker response")
 
-	// Cache price
+	// Cache price.
 	mPrice sync.Mutex
 	prices = make(map[string]PriceWithTimestamp)
 
-	priceClient = &http.Client{
-		Timeout: priceFetchTimeout,
-	}
+	priceClient http.Client
 )
 
 type TickerResponse struct {
@@ -60,11 +55,11 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	mPrice.Lock()
 	defer mPrice.Unlock()
 
-	if cached, ok := prices[currency]; ok && time.Since(cached.FetchedAt) < priceUpdateInterval {
+	if cached, ok := prices[currency]; ok && time.Since(cached.FetchedAt) < config.CoinmarketcapCacheDuration {
 		return cached.Price, nil
 	}
 
-	req, err := http.NewRequest("GET", tickerURL, nil)
+	req, err := http.NewRequest("GET", tickerURL, nil) // nolint:noctx // client timeout set
 	if err != nil {
 		return
 	}

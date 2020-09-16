@@ -79,6 +79,9 @@ func main() {
 	node = nano.New(config.NodeURL)
 	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
 
+	notificationClient.Timeout = config.NotificationRequestTimeout
+	priceClient.Timeout = config.CoinmarketcapRequestTimeout
+
 	log.Debugln("opening db:", config.DatabasePath)
 	db, err = bbolt.Open(config.DatabasePath, 0600, nil)
 	if err != nil {
