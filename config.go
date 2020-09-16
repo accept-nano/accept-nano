@@ -18,6 +18,8 @@ type Config struct {
 	NodeURL string `envconfig:"NODE_URL"`
 	// Websocket URL of a running node.
 	NodeWebsocketURL string `envconfig:"NODE_WEBSOCKET_URL"`
+	// Disable subscribing confirmations over WebSocket
+	DisableWebsocket bool
 	// Timeout for requests made to Node URL (milliseconds).
 	NodeTimeout uint
 	// Funds will be sent to this address.

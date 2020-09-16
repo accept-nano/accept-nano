@@ -103,7 +103,7 @@ func main() {
 		p.StartChecking()
 	}
 
-	if config.NodeWebsocketURL != "" {
+	if !config.DisableWebsocket && config.NodeWebsocketURL != "" {
 		go runSubscriber()
 		go runChecker()
 	}
