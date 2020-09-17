@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/accept-nano/accept-nano/nano"
+	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 )
 

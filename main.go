@@ -10,7 +10,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/accept-nano/accept-nano/nano"
+	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"

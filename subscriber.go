@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/accept-nano/accept-nano/nano"
+	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 )
 

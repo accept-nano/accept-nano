@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/accept-nano/accept-nano/nano"
+	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
 )
