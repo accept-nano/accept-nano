@@ -20,7 +20,7 @@ There are several options:
      - `"rpc_enable"` and `"enable_control"` options must be enabled in [node config](https://docs.nano.org/running-a-node/configuration/)
    - If you don't want to setup your own, you can use a node proxy. There are several options. Some of them are:
      - https://mynano.ninja/api/node
-     - https://api.nanos.cc/ (has WebSocket support)
+     - https://api.nanos.cc/
  - Create a config file for *accept-nano*. See [Config section](#config) below.
  - Run command: `accept-nano -config /path/to/the/config.toml`
 
