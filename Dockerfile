@@ -1,4 +1,4 @@
-FROM golang:1.14.4-alpine3.12 AS builder
+FROM golang:1.15.2-alpine3.12 AS builder
 
 WORKDIR /go/src/accept-nano
 
