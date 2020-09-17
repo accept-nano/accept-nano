@@ -40,6 +40,7 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	if err != nil {
 		return err
 	}
+	req.Header.Set("Content-Type", "application/json")
 	if n.auth != "" {
 		req.Header.Set("authorization", n.auth)
 	}
