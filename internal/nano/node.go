@@ -48,6 +48,14 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 		return err
 	}
 	defer resp.Body.Close()
+	rateLimitRemaining := resp.Header.Get("x-ratelimit-remaining")
+	if rateLimitRemaining != "" {
+		log.Debugln("Node rate limit remaining:", rateLimitRemaining)
+	}
+	rateLimitReset := resp.Header.Get("x-ratelimit-reset")
+	if rateLimitReset != "" {
+		log.Debugln("Node rate limit reset:", rateLimitReset)
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
