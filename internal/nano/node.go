@@ -13,16 +13,17 @@ import (
 type Node struct {
 	url    string
 	client http.Client
+	auth   string
 }
 
-func New(nodeURL string) *Node {
+func New(nodeURL string, timeout time.Duration, authorization string) *Node {
 	return &Node{
 		url: nodeURL,
+		client: http.Client{
+			Timeout: timeout,
+		},
+		auth: authorization,
 	}
-}
-
-func (n *Node) SetTimeout(d time.Duration) {
-	n.client.Timeout = d
 }
 
 func (n *Node) call(action string, args map[string]interface{}, response interface{}) error {
@@ -35,7 +36,14 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	if err != nil {
 		return err
 	}
-	resp, err := n.client.Post(n.url, "application/json", bytes.NewReader(data)) // nolint:noctx // client timeout set
+	req, err := http.NewRequest(http.MethodPost, n.url, bytes.NewReader(data)) // nolint:noctx // client timeout set
+	if err != nil {
+		return err
+	}
+	if n.auth != "" {
+		req.Header.Set("authorization", n.auth)
+	}
+	resp, err := n.client.Do(req)
 	if err != nil {
 		return err
 	}

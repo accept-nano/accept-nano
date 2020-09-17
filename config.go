@@ -29,6 +29,8 @@ type Config struct {
 	DisableWebsocket bool
 	// Timeout for requests made to Node URL.
 	NodeTimeout time.Duration
+	// Authorization HTTP header value for node requests.
+	NodeAuthorizationHeader string
 	// Funds will be sent to this address.
 	Account string
 	// Representative for created deposit accounts.

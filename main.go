@@ -85,9 +85,7 @@ func main() {
 	}
 
 	rateLimiter = limiter.New(memory.NewStore(), rate, limiter.WithTrustForwardHeader(true))
-	node = nano.New(config.NodeURL)
-	node.SetTimeout(config.NodeTimeout)
-
+	node = nano.New(config.NodeURL, config.NodeTimeout, config.NodeAuthorizationHeader)
 	notificationClient.Timeout = config.NotificationRequestTimeout
 	priceClient.Timeout = config.CoinmarketcapRequestTimeout
 
