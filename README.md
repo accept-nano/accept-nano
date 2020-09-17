@@ -11,7 +11,7 @@ You can use it independently or together with it's web client [accept-nano-clien
 There are several options:
  - Download the latest binary from [releases page](https://github.com/accept-nano/accept-nano/releases)
  - Pull Docker image: `docker pull acceptnano/acceptnano`
- - Compil from source: `go get -u github.com/accept-nano/accept-nano`
+ - Compile from source: `go get -u github.com/accept-nano/accept-nano`
 
 ## Running
 
