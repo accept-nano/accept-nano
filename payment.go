@@ -122,14 +122,14 @@ func (p *Payment) Save() error {
 // NextCheck returns the next timestamp payment should be checked at.
 func (p Payment) NextCheck() time.Duration {
 	if p.LastCheckedAt == nil {
-		return time.Duration(config.MinNextCheckDuration) * time.Second
+		return config.MinNextCheckDuration
 	}
 	create := p.CreatedAt
 	lastCheck := *p.LastCheckedAt
 
 	now := time.Now().UTC()
-	minWait := time.Duration(config.MinNextCheckDuration) * time.Second
-	maxWait := time.Duration(config.MaxNextCheckDuration) * time.Second
+	minWait := config.MinNextCheckDuration
+	maxWait := config.MaxNextCheckDuration
 	passed := now.Sub(create)
 	nextWait := passed / time.Duration(config.NextCheckDurationFactor)
 	if nextWait < minWait {
@@ -143,12 +143,11 @@ func (p Payment) NextCheck() time.Duration {
 
 // finished returns true after all operations are complete or allowed duration for payment is passed.
 func (p Payment) finished() bool {
-	return p.SentAt != nil || now().Sub(p.CreatedAt) > time.Duration(config.AllowedDuration)*time.Second
+	return p.SentAt != nil || now().Sub(p.CreatedAt) > config.AllowedDuration
 }
 
 func (p Payment) remainingDuration() time.Duration {
-	allow := time.Duration(config.AllowedDuration) * time.Second
-	return p.CreatedAt.Add(allow).Sub(*now())
+	return p.CreatedAt.Add(config.AllowedDuration).Sub(*now())
 }
 
 // StartChecking starts a goroutine to check the payment periodically.

@@ -1,17 +1,15 @@
 package main
 
 import (
+	"path/filepath"
+	"strings"
 	"time"
 
-	"github.com/BurntSushi/toml"
-	"github.com/kelseyhightower/envconfig"
-)
-
-const (
-	defaultNodeTimeout                 = 600000
-	defaultNotificationRequestTimeout  = time.Minute
-	defaultCoinmarketcapRequestTimeout = 10 * time.Second
-	defaultCoinmarketcapCacheDuration  = time.Minute
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
 )
 
 type Config struct {
@@ -24,31 +22,31 @@ type Config struct {
 	// Optional TLS certificate and key if you want to serve over HTTPS.
 	CertFile, KeyFile string
 	// URL of a running node.
-	NodeURL string `envconfig:"NODE_URL"`
+	NodeURL string
 	// Websocket URL of a running node.
-	NodeWebsocketURL string `envconfig:"NODE_WEBSOCKET_URL"`
+	NodeWebsocketURL string
 	// Disable subscribing confirmations over WebSocket
 	DisableWebsocket bool
-	// Timeout for requests made to Node URL (milliseconds).
-	NodeTimeout uint
+	// Timeout for requests made to Node URL.
+	NodeTimeout time.Duration
 	// Funds will be sent to this address.
-	Account string `envconfig:"ACCOUNT"`
+	Account string
 	// Representative for created deposit accounts.
 	Representative string
 	// Seed to generate private keys from.
 	// This is not your Account seed!
 	// You can generate a new seed with -seed flag.
 	// This seed will also be used for signing JWT tokens.
-	Seed string `envconfig:"SEED"`
+	Seed string
 	// When customer sends the funds, merhchant will be notified at this URL.
 	NotificationURL string
 	// Timeout for requests made to the merchant's NotificationURL
 	NotificationRequestTimeout time.Duration
-	// Give some time to unfinished HTTP requests before shutting down the server (milliseconds).
-	ShutdownTimeout uint
+	// Give some time to unfinished HTTP requests before shutting down the server.
+	ShutdownTimeout time.Duration
 	// Limit payment creation requests to prevent DOS attack.
 	RateLimit string
-	// Payments below this amount are ignored.
+	// To protect against spam, payments below this amount are ignored.
 	ReceiveThreshold string
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
@@ -56,19 +54,21 @@ type Config struct {
 	UnderPaymentToleranceFixed float64
 	// Up to this amount underpayments are accepted. Amount in percent.
 	UnderPaymentTolerancePercent float64
-	// Max allowed time for payment after it is created (seconds).
-	AllowedDuration int
+	// Max allowed time for payment after it is created.
+	AllowedDuration time.Duration
 	// Parameter for calculating next check time of the payment.
 	// Time passed since the creation of payment request is divided to this number.
-	NextCheckDurationFactor int
-	// Min allowed duration to check the payment (seconds).
-	MinNextCheckDuration int
-	// Max allowed duration to check the payment (seconds).
-	MaxNextCheckDuration int
+	NextCheckDurationFactor float64
+	// Min allowed duration to check the payment.
+	MinNextCheckDuration time.Duration
+	// Max allowed duration to check the payment.
+	MaxNextCheckDuration time.Duration
 	// Password for accessing admin endpoints.
 	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
-	AdminPassword string `envconfig:"ADMIN_PASSWORD"`
+	// If no password is set, admin endpoints are disabled.
+	AdminPassword string
 	// Coinmarketcap API Key
+	// https://coinmarketcap.com/api/documentation/v1/
 	CoinmarketcapAPIKey string
 	// Timeout for HTTP requests made to Coinmarketcap
 	CoinmarketcapRequestTimeout time.Duration
@@ -76,69 +76,46 @@ type Config struct {
 	CoinmarketcapCacheDuration time.Duration
 }
 
-func (c *Config) Read() error {
-	_, err := toml.DecodeFile(*configPath, c)
-	if err != nil {
-		return err
-	}
-	err = envconfig.Process("", c)
-	if err != nil {
-		return err
-	}
-	c.setDefaults()
-	return nil
+var DefaultConfig = Config{
+	DatabasePath:                "accept-nano.db",
+	ListenAddress:               "127.0.0.1:8080",
+	NodeURL:                     "http://127.0.0.1:7076",
+	NodeWebsocketURL:            "ws://127.0.0.1:7078",
+	NodeTimeout:                 time.Minute,
+	Representative:              "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r",
+	ShutdownTimeout:             5 * time.Second,
+	RateLimit:                   "60-H",
+	ReceiveThreshold:            "0.001",
+	MaxPayments:                 10,
+	AllowedDuration:             time.Hour,
+	NextCheckDurationFactor:     20,
+	MinNextCheckDuration:        10 * time.Second,
+	MaxNextCheckDuration:        20 * time.Minute,
+	CoinmarketcapRequestTimeout: 10 * time.Second,
+	CoinmarketcapCacheDuration:  time.Minute,
+	NotificationRequestTimeout:  time.Minute,
 }
 
-func (c *Config) setDefaults() {
-	if c.DatabasePath == "" {
-		c.DatabasePath = "accept-nano.db"
+func (c *Config) Read() (err error) {
+	*c = DefaultConfig
+	k := koanf.New(".")
+	var parser koanf.Parser
+	ext := filepath.Ext(*configPath)
+	if ext == ".yaml" || ext == ".yml" {
+		parser = yaml.Parser()
+	} else {
+		parser = toml.Parser()
 	}
-	if c.ListenAddress == "" {
-		c.ListenAddress = "127.0.0.1:8080"
+	err = k.Load(file.Provider(*configPath), parser)
+	if err != nil {
+		return
 	}
-	if c.NodeURL == "" {
-		c.NodeURL = "http://127.0.0.1:7076"
+	err = k.Load(env.Provider("ACCEPTNANO_", ".", func(s string) string {
+		return strings.Replace(strings.TrimPrefix(s, "ACCEPTNANO_"), "_", ".", -1)
+	}), nil)
+	if err != nil {
+		return
 	}
-	if c.NodeWebsocketURL == "" {
-		c.NodeWebsocketURL = "ws://127.0.0.1:7078"
-	}
-	if c.NodeTimeout == 0 {
-		c.NodeTimeout = defaultNodeTimeout
-	}
-	if c.Representative == "" {
-		c.Representative = "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r"
-	}
-	if c.ShutdownTimeout == 0 {
-		c.ShutdownTimeout = 5000
-	}
-	if c.RateLimit == "" {
-		c.RateLimit = "60-H"
-	}
-	if c.ReceiveThreshold == "" {
-		c.ReceiveThreshold = "0.001"
-	}
-	if c.MaxPayments == 0 {
-		c.MaxPayments = 10
-	}
-	if c.AllowedDuration == 0 {
-		c.AllowedDuration = 3600
-	}
-	if c.NextCheckDurationFactor == 0 {
-		c.NextCheckDurationFactor = 20
-	}
-	if c.MinNextCheckDuration == 0 {
-		c.MinNextCheckDuration = 10
-	}
-	if c.MaxNextCheckDuration == 0 {
-		c.MaxNextCheckDuration = 1200
-	}
-	if c.CoinmarketcapRequestTimeout == 0 {
-		c.CoinmarketcapRequestTimeout = defaultCoinmarketcapRequestTimeout
-	}
-	if c.CoinmarketcapCacheDuration == 0 {
-		c.CoinmarketcapCacheDuration = defaultCoinmarketcapCacheDuration
-	}
-	if c.NotificationRequestTimeout == 0 {
-		c.NotificationRequestTimeout = defaultNotificationRequestTimeout
-	}
+	err = k.Unmarshal("", &c)
+	return
 }

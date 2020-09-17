@@ -3,11 +3,10 @@ module github.com/accept-nano/accept-nano
 go 1.13
 
 require (
-	github.com/BurntSushi/toml v0.3.1
 	github.com/accept-nano/ed25519-blake2b v1.0.0
 	github.com/cenkalti/log v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/knadh/koanf v0.12.1
 	github.com/rs/cors v1.7.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.6.1

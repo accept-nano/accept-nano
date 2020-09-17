@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
 
 	"github.com/accept-nano/accept-nano/nano"
 	"github.com/cenkalti/log"
@@ -77,7 +76,7 @@ func main() {
 
 	rateLimiter = limiter.New(memory.NewStore(), rate, limiter.WithTrustForwardHeader(true))
 	node = nano.New(config.NodeURL)
-	node.SetTimeout(time.Duration(config.NodeTimeout) * time.Millisecond)
+	node.SetTimeout(config.NodeTimeout)
 
 	notificationClient.Timeout = config.NotificationRequestTimeout
 	priceClient.Timeout = config.CoinmarketcapRequestTimeout
@@ -119,7 +118,7 @@ func main() {
 
 	close(stopCheckPayments)
 
-	shutdownTimeout := time.Duration(config.ShutdownTimeout) * time.Millisecond
+	shutdownTimeout := config.ShutdownTimeout
 	log.Noticeln("shutting down with timeout:", shutdownTimeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
