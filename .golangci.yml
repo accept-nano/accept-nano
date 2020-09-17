@@ -19,3 +19,6 @@ issues:
         - goconst
         - errcheck
         - testpackage
+    - path: config\.go
+      linters:
+        - gomnd
