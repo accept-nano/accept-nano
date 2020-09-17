@@ -1,0 +1,24 @@
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod download
+builds:
+  - env:
+    - CGO_ENABLED=0
+    ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+    goos:
+    - linux
+    goarch:
+    - amd64
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}"
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'

@@ -1,0 +1,122 @@
+name: Build
+
+on: [push, pull_request]
+
+env:
+  GITHUB_DOCKER_IMAGE_NAME: accept-nano
+  DOCKER_HUB_IMAGE_NAME: acceptnano/acceptnano
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Get dependencies
+        run: go get -v -t -d ./...
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.30
+
+      - name: Test
+        run: go test -race -v -covermode atomic -coverprofile=covprofile ./...
+
+      - name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: covprofile
+
+  goreleaser:
+    name: Build and release binary
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+      - uses: goreleaser/goreleaser-action@v2.2.0
+        with:
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+
+  push-github:
+    name: Push image to GitHub Packages
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare
+        id: prep
+        run: |
+          echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+          echo ::set-output name=date::$(date --utc +'%Y-%m-%dT%H:%M:%SZ')
+
+      - name: Build image
+        run: docker build . --tag $GITHUB_DOCKER_IMAGE_NAME --build-arg VERSION=${{ steps.prep.outputs.version }},COMMIT=${{ github.sha }},DATE=${{ steps.prep.outputs.date }}
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$GITHUB_DOCKER_IMAGE_NAME
+          docker tag $GITHUB_DOCKER_IMAGE_NAME $IMAGE_ID:${{ steps.prep.outputs.version }}
+          docker push $IMAGE_ID:${{ steps.prep.outputs.version }}
+
+  push-docker:
+    name: Push image to Docker Hub
+    needs: test
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Prepare
+        id: prep
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          TAGS="${DOCKER_HUB_IMAGE_NAME}:${VERSION}"
+          if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            TAGS="$TAGS,${DOCKER_HUB_IMAGE_NAME}:latest"
+          fi
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=date::$(date --utc +'%Y-%m-%dT%H:%M:%SZ')
+          echo ::set-output name=tags::${TAGS}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{ steps.prep.outputs.tags }}
+          build-args: VERSION=${{ steps.prep.outputs.version }},COMMIT=${{ github.sha }},DATE=${{ steps.prep.outputs.date }}

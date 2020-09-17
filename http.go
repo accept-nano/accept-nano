@@ -46,7 +46,7 @@ func runServer() {
 }
 
 func handleVersion(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte(Version))
+	_, err := w.Write([]byte(version))
 	if err != nil {
 		log.Debug(err)
 	}

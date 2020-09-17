@@ -1,7 +1,5 @@
 # accept-nano
 
-[![Build Status](https://travis-ci.org/accept-nano/accept-nano.svg?branch=master)](https://travis-ci.org/accept-nano/accept-nano)
-
 Payment gateway for [NANO](https://nano.org)
 
 *accept-nano* is a server program that helps you to accept NANO payments easily.

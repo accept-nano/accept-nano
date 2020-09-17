@@ -19,11 +19,17 @@ import (
 
 const paymentsBucket = "payments"
 
+// These variables are set by goreleaser on build.
 var (
-	Version           = ""
+	version = "0.0.0"
+	commit  = ""
+	date    = ""
+)
+
+var (
 	generateSeed      = flag.Bool("seed", false, "generate a seed and exit")
 	configPath        = flag.String("config", "config.toml", "config file path")
-	version           = flag.Bool("version", false, "display version and exit")
+	versionFlag       = flag.Bool("version", false, "display version and exit")
 	config            Config
 	db                *bbolt.DB
 	server            http.Server
@@ -35,15 +41,19 @@ var (
 	verifications     Hub
 )
 
-func main() {
-	if Version == "" {
-		Version = "v0.0.0"
+func versionString() string {
+	const shaLen = 7
+	if len(commit) > shaLen {
+		commit = commit[:shaLen]
 	}
+	return fmt.Sprintf("%s (%s) [%s]", version, commit, date)
+}
 
+func main() {
 	flag.Parse()
 
-	if *version {
-		fmt.Println(Version)
+	if *versionFlag {
+		fmt.Println(versionString())
 		return
 	}
 
