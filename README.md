@@ -2,46 +2,46 @@
 
 Payment gateway for [NANO](https://nano.org)
 
-*accept-nano* is a server program that helps you to accept NANO payments easily.
+*accept-nano* is a server program that helps you to accept NANO payments in a fast, secure and cost-efficient way.
+
+You can use it independently or together with it's web client [accept-nano-client](https://github.com/accept-nano/accept-nano-client).
 
 ## Installing
 
- - *accept-nano* is written in Go. You can install from source:
-   ```$ go get -u github.com/accept-nano/accept-nano```
-   or
- - Download the latest compiled binary from [relases page](https://github.com/accept-nano/accept-nano/releases).
+There are several options:
+ - Download the latest binary from [releases page](https://github.com/accept-nano/accept-nano/releases)
+ - Pull Docker image: `docker pull acceptnano/acceptnano`
+ - Compil from source: `go get -u github.com/accept-nano/accept-nano`
 
 ## Running
 
- - You must have a running NANO node. It's trivial to set one up. You can find instructions at https://docs.nano.org/running-a-node/node-setup/
- - In NANO node [config](https://docs.nano.org/running-a-node/configuration/), `"rpc_enable"` and `"enable_control"` options must be enabled.
+ - You need a running NANO node (version >= 21) for communicating with NANO network.
+   - If you are going to setup your own, see [instructions](https://docs.nano.org/running-a-node/node-setup/)
+     - `"rpc_enable"` and `"enable_control"` options must be enabled in [node config](https://docs.nano.org/running-a-node/configuration/)
+   - If you don't want to setup your own, you can use a node proxy. There are several options. Some of them are:
+     - https://mynano.ninja/api/node
+     - https://api.nanos.cc/ (has WebSocket support)
  - Create a config file for *accept-nano*. See [Config section](#config) below.
- - Run it with:
-   ```$ accept-nano -config /path/to/the/config.toml```
- - You can run *accept-nano* and NANO node software in the same host but it is not necessary.
+ - Run command: `accept-nano -config /path/to/the/config.toml`
 
 ## Docker
 
-You can create a Docker container for accept-nano that works perfectly with your [Docker Nano Node](https://docs.nano.org/running-a-node/docker-management/)!
+You can create a Docker container for accept-nano that works perfectly with your [Docker Nano Node](https://docs.nano.org/running-a-node/docker-management/).
 The configuration and database are stored at `/opt/data` so you should map that folder to your host.
-
-#### Pulling Docker image
-
-    docker pull docker.pkg.github.com/accept-nano/accept-nano/accept-nano
 
 #### Standalone
 
-    docker run -d -p 8080:8080 -v ~/accept-nano:/opt/data docker.pkg.github.com/accept-nano/accept-nano/accept-nano
+    docker run -d -p 8080:8080 -v ~/accept-nano:/opt/data acceptnano/acceptnano
 
 #### Docker Compose
 
-Example configuration:
+Example configuration with NANO node:
 
 ```yaml
 version: '3'
 services:
   accept-nano:
-    image: "docker.pkg.github.com/accept-nano/accept-nano/accept-nano"
+    image: "acceptnano/acceptnano"
     restart: "unless-stopped"
     ports:
      - "8080:8080"
@@ -76,10 +76,11 @@ services:
 
 ## Config
 
- - Config is written in TOML format.
+ - Config is written in TOML or YAML format.
  - The structure of config file is defined in [config.go](https://github.com/accept-nano/accept-nano/blob/master/config.go). See comments for field descriptions.
+ - All of the configuration options can be overriden with `ACCEPTNANO_` prefixed environment variables. This makes configuring the Docker container easier.
 
-### Example Config
+### Example config.toml
 
 ```toml
 DatabasePath = "./accept-nano.db"
@@ -99,8 +100,9 @@ CoinmarketcapAPIKey = "123ab456-cd78-90ef-ab12-34cd56ef7890"
 
  - *accept-nano* does not need to know your merchant wallet seed. It takes payments from customers and sends them to your merchant account address defined in config file.
  - *accept-nano* server is designed to be open to the Internet but you can run it in your internal network and control requests to it if you want to be extra safe.
- - *accept-nano* does not keep funds itself and passes incoming payments to the merchant account immediately. So there is only a small period of time when the funds are held by *accept-nano*.
+ - *accept-nano* does not keep funds itself and passes incoming payments to the merchant account immediately. So there is only a short period of time when the funds are held by *accept-nano*.
  - Private keys are not saved in the database and derived from the seed defined in the config. So you are safe even if the database file is stolen.
+ - Key generation and block signing is done in *accept-nano* process. That means private keys does not leave the process in any circumstances.
 
 ## Contributing
 
