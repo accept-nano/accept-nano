@@ -30,11 +30,14 @@ type Payment struct {
 	Index string `json:"index"`
 	// Currency of amount in original request.
 	Currency string `json:"currency"`
-	// Original amount requested by client. Amount * Price(Currency)
+	// Original amount requested by client in preferred currency.
+	// If currency is NANO, AmountInCurrency equals to Amount.
 	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`
-	// In NANO currency. Payment is fulfilled when Account contains this amount.
+	// Requested amount in NANO currency.
+	// Calculated when payment request is created.
+	// Payment is fulfilled when Account contains at least this amount.
 	Amount decimal.Decimal `json:"amount"`
-	// Current balance in Account
+	// Current balance of Account in NANO.
 	Balance decimal.Decimal `json:"balance"`
 	// Individual transactions to pay the total amount.
 	SubPayments map[string]SubPayment `json:"subPayments"`

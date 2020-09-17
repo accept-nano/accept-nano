@@ -19,7 +19,7 @@ func receiveBlock(hash, amount, account, privateKey, publicKey string) error {
 	switch err {
 	case nano.ErrAccountNotFound:
 		// First block in account chain. This is the common case.
-		newReceiverBlockPreviousHash = "00000000000000000000000000000000"
+		newReceiverBlockPreviousHash = "0000000000000000000000000000000000000000000000000000000000000000"
 		newReceiverBalance = sentAmount
 		workHash = publicKey
 	case nil:
