@@ -1,4 +1,4 @@
-package main
+package hub
 
 // This file is copied from https://github.com/cenkalti/hub/blob/master/hub.go then modified for the project.
 

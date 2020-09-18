@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/accept-nano/accept-nano/internal/hub"
 	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 	"github.com/ulule/limiter/v3"
@@ -38,7 +39,7 @@ var (
 	stopCheckPayments = make(chan struct{})
 	checkPaymentWG    sync.WaitGroup
 	confirmations     = make(chan string)
-	verifications     Hub
+	verifications     hub.Hub
 )
 
 func versionString() string {

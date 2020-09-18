@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/accept-nano/accept-nano/internal/hub"
 	"github.com/cenkalti/log"
 	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
@@ -192,7 +193,7 @@ func handleWebsocket(conn *websocket.Conn) {
 	if err != nil {
 		return
 	}
-	cancel := verifications.Subscribe(Account(claims.Account), func(e Event) {
+	cancel := verifications.Subscribe(hub.Account(claims.Account), func(e hub.Event) {
 		pv := e.(PaymentVerified)
 		response := NewResponse(&pv.Payment, token)
 		b, err := json.Marshal(&response)
@@ -216,6 +217,6 @@ type PaymentVerified struct {
 	Payment
 }
 
-func (p PaymentVerified) Account() Account {
-	return Account(p.Payment.Account)
+func (p PaymentVerified) Account() hub.Account {
+	return hub.Account(p.Payment.Account)
 }
