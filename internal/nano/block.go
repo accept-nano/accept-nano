@@ -9,15 +9,16 @@ import (
 	"strings"
 
 	ed25519 "github.com/accept-nano/ed25519-blake2b"
+	"github.com/shopspring/decimal"
 	"golang.org/x/crypto/blake2b"
 )
 
 type PendingBlock struct {
-	Amount string `json:"amount"`
-	Source string `json:"source"`
+	Amount decimal.Decimal `json:"amount"`
+	Source string          `json:"source"`
 }
 
-func (n *Node) Pending(account string, count int, threshold string) (map[string]PendingBlock, error) {
+func (n *Node) Pending(account string, count int, threshold decimal.Decimal) (map[string]PendingBlock, error) {
 	args := map[string]interface{}{
 		"account":   account,
 		"count":     count,
@@ -42,8 +43,8 @@ func (n *Node) Pending(account string, count int, threshold string) (map[string]
 	return ret, err
 }
 
-func (n *Node) BlockCreate(previous, account, representative, balance, link, key, work string) (string, error) {
-	block, err := blockCreate(previous, account, representative, balance, link, key, work)
+func (n *Node) BlockCreate(previous, account, representative string, balance decimal.Decimal, link, key, work string) (string, error) { // nolint:interfacer
+	block, err := blockCreate(previous, account, representative, balance.String(), link, key, work)
 	return block.Block.String(), err
 }
 

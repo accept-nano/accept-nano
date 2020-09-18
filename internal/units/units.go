@@ -4,12 +4,12 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-var rawMultiplier = decimal.RequireFromString("1000000000000000000000000000000")
+const exp = 30
 
 func NanoToRaw(nano decimal.Decimal) decimal.Decimal {
-	return nano.Mul(rawMultiplier)
+	return nano.Shift(exp)
 }
 
 func RawToNano(raw decimal.Decimal) decimal.Decimal {
-	return raw.Div(rawMultiplier)
+	return raw.Shift(-exp)
 }

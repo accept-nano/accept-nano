@@ -33,13 +33,12 @@ type Payment struct {
 	// Currency of amount in original request.
 	Currency string `json:"currency"`
 	// Original amount requested by client in preferred currency.
-	// If currency is NANO, AmountInCurrency equals to Amount.
 	AmountInCurrency decimal.Decimal `json:"amountInCurrency"`
-	// Requested amount in NANO currency.
+	// Requested amount in raw.
 	// Calculated when payment request is created.
 	// Payment is fulfilled when Account contains at least this amount.
 	Amount decimal.Decimal `json:"amount"`
-	// Current balance of Account in NANO.
+	// Current balance of Account in raw.
 	Balance decimal.Decimal `json:"balance"`
 	// Individual transactions to pay the total amount.
 	SubPayments map[string]SubPayment `json:"subPayments"`
@@ -60,8 +59,10 @@ type Payment struct {
 }
 
 type SubPayment struct {
-	Amount  decimal.Decimal `json:"amount"`
-	Account string          `json:"account"`
+	// Amount in raw.
+	Amount decimal.Decimal `json:"amount"`
+	// Sender account.
+	Account string `json:"account"`
 }
 
 // LoadPayment fetches a Payment object from database by key.
@@ -275,24 +276,16 @@ func now() *time.Time {
 }
 
 func (p *Payment) checkPending() error {
-	threshold, err := decimal.NewFromString(config.ReceiveThreshold)
-	if err != nil {
-		return err
-	}
 	var totalAmount decimal.Decimal
 	accountInfo, err := node.AccountInfo(p.Account)
 	switch err {
 	case nano.ErrAccountNotFound:
 	case nil:
-		accountBalance, err2 := decimal.NewFromString(accountInfo.Balance)
-		if err2 != nil {
-			return err2
-		}
-		totalAmount.Add(accountBalance)
+		totalAmount = accountInfo.Balance
 	default:
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(threshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
 	if err != nil {
 		return err
 	}
@@ -301,19 +294,18 @@ func (p *Payment) checkPending() error {
 	}
 	for hash, pendingBlock := range pendingBlocks {
 		log.Debugf("received new block: %#v", hash)
-		amount, err2 := decimal.NewFromString(pendingBlock.Amount)
-		if err2 != nil {
-			return err2
-		}
-		log.Debugln("amount:", units.RawToNano(amount))
-		totalAmount = totalAmount.Add(amount)
+		log.Debugln("amount:", units.RawToNano(pendingBlock.Amount))
+		totalAmount = totalAmount.Add(pendingBlock.Amount)
 		if p.SubPayments == nil {
 			p.SubPayments = make(map[string]SubPayment, 1)
 		}
-		p.SubPayments[hash] = SubPayment{Account: pendingBlock.Source, Amount: amount}
+		p.SubPayments[hash] = SubPayment{
+			Account: pendingBlock.Source,
+			Amount:  pendingBlock.Amount,
+		}
 	}
 	log.Debugln("total amount:", units.RawToNano(totalAmount))
-	if p.Balance != totalAmount {
+	if !p.Balance.Equal(totalAmount) {
 		p.Balance = totalAmount
 		err = p.Save()
 		if err != nil {
@@ -327,21 +319,24 @@ func (p *Payment) checkPending() error {
 }
 
 func (p *Payment) isFulfilled() bool {
-	if config.UnderPaymentToleranceFixed != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Sub(units.NanoToRaw(decimal.NewFromFloat(config.UnderPaymentToleranceFixed)))) {
-		return true
+	if !config.UnderPaymentToleranceFixed.IsZero() {
+		tolerance := units.NanoToRaw(config.UnderPaymentToleranceFixed)
+		if p.Balance.GreaterThanOrEqual(p.Amount.Sub(tolerance)) {
+			return true
+		}
 	}
-	if config.UnderPaymentTolerancePercent != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Mul(decimal.NewFromFloat(100-config.UnderPaymentTolerancePercent))) { // nolint: gomnd
-		return true
+	if config.UnderPaymentTolerancePercent != 0 {
+		percent := decimal.NewFromFloat(config.UnderPaymentTolerancePercent)
+		tolerance := p.Amount.Mul(percent)
+		if p.Balance.GreaterThanOrEqual(p.Amount.Sub(tolerance)) {
+			return true
+		}
 	}
 	return p.Balance.GreaterThanOrEqual(p.Amount)
 }
 
 func (p *Payment) receivePending() error {
-	threshold, err := decimal.NewFromString(config.ReceiveThreshold)
-	if err != nil {
-		return err
-	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(threshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
 	if err != nil {
 		return err
 	}

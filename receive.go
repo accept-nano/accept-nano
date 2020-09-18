@@ -2,16 +2,13 @@ package main
 
 import (
 	"github.com/accept-nano/accept-nano/internal/nano"
+	"github.com/accept-nano/accept-nano/internal/units"
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
 )
 
-func receiveBlock(hash, amount, account, privateKey, publicKey string) error {
-	sentAmount, err := decimal.NewFromString(amount)
-	if err != nil {
-		return err
-	}
-	log.Debugln("amount:", sentAmount)
+func receiveBlock(hash string, amount decimal.Decimal, account, privateKey, publicKey string) error {
+	log.Debugln("amount:", units.RawToNano(amount).String())
 	var newReceiverBlockPreviousHash string
 	var newReceiverBalance decimal.Decimal
 	var workHash string
@@ -20,17 +17,13 @@ func receiveBlock(hash, amount, account, privateKey, publicKey string) error {
 	case nano.ErrAccountNotFound:
 		// First block in account chain. This is the common case.
 		newReceiverBlockPreviousHash = "0000000000000000000000000000000000000000000000000000000000000000"
-		newReceiverBalance = sentAmount
+		newReceiverBalance = amount
 		workHash = publicKey
 	case nil:
 		// More than one payment is made to the account.
 		log.Debugf("account info: %#v", receiverAccountInfo)
 		newReceiverBlockPreviousHash = receiverAccountInfo.Frontier
-		currentReceiverBalance, err2 := decimal.NewFromString(receiverAccountInfo.Balance)
-		if err2 != nil {
-			return err2
-		}
-		newReceiverBalance = currentReceiverBalance.Add(sentAmount)
+		newReceiverBalance = receiverAccountInfo.Balance.Add(amount)
 		workHash = newReceiverBlockPreviousHash
 	default:
 		return err
@@ -39,7 +32,7 @@ func receiveBlock(hash, amount, account, privateKey, publicKey string) error {
 	if err != nil {
 		return err
 	}
-	newReceiverBlock, err := node.BlockCreate(newReceiverBlockPreviousHash, account, config.Representative, newReceiverBalance.String(), hash, privateKey, work)
+	newReceiverBlock, err := node.BlockCreate(newReceiverBlockPreviousHash, account, config.Representative, newReceiverBalance, hash, privateKey, work)
 	if err != nil {
 		return err
 	}

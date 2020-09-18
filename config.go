@@ -10,6 +10,7 @@ import (
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/shopspring/decimal"
 )
 
 type Config struct {
@@ -49,11 +50,11 @@ type Config struct {
 	// Limit payment creation requests to prevent DOS attack.
 	RateLimit string
 	// To protect against spam, payments below this amount are ignored.
-	ReceiveThreshold string
+	ReceiveThreshold decimal.Decimal
 	// Maximum number of payments allowed to fulfill the expected amount.
 	MaxPayments int
 	// Up to this amount underpayments are accepted. Amount in NANO.
-	UnderPaymentToleranceFixed float64
+	UnderPaymentToleranceFixed decimal.Decimal
 	// Up to this amount underpayments are accepted. Amount in percent.
 	UnderPaymentTolerancePercent float64
 	// Max allowed time for payment after it is created.
@@ -87,7 +88,7 @@ var DefaultConfig = Config{
 	Representative:              "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r",
 	ShutdownTimeout:             5 * time.Second,
 	RateLimit:                   "60-H",
-	ReceiveThreshold:            "0.001",
+	ReceiveThreshold:            decimal.RequireFromString("0.001"),
 	MaxPayments:                 10,
 	AllowedDuration:             time.Hour,
 	NextCheckDurationFactor:     20,

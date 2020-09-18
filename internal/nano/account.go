@@ -2,16 +2,18 @@ package nano
 
 import (
 	"errors"
+
+	"github.com/shopspring/decimal"
 )
 
 type AccountInfo struct {
-	Frontier            string `json:"frontier"`
-	OpenBlock           string `json:"open_block"`
-	RepresentativeBlock string `json:"representative_block"`
-	Balance             string `json:"balance"`
-	ModifiedTimestamp   string `json:"modified_timestamp"`
-	BlockCount          string `json:"block_count"`
-	Representative      string `json:"representative"`
+	Frontier            string          `json:"frontier"`
+	OpenBlock           string          `json:"open_block"`
+	RepresentativeBlock string          `json:"representative_block"`
+	Balance             decimal.Decimal `json:"balance"`
+	ModifiedTimestamp   string          `json:"modified_timestamp"`
+	BlockCount          string          `json:"block_count"`
+	Representative      string          `json:"representative"`
 }
 
 var ErrAccountNotFound = errors.New("account not found")
