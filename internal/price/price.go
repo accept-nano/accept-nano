@@ -1,4 +1,4 @@
-package main
+package price
 
 import (
 	"encoding/json"
@@ -19,22 +19,14 @@ const (
 	nanoID    = "1567"
 )
 
-type PriceWithTimestamp struct {
+type priceWithTimestamp struct {
 	Price     decimal.Decimal
 	FetchedAt time.Time
 }
 
-var (
-	errBadTickerResponse = errors.New("bad ticker response")
+var errBadTickerResponse = errors.New("bad ticker response")
 
-	// Cache price.
-	mPrice sync.Mutex
-	prices = make(map[string]PriceWithTimestamp)
-
-	priceClient http.Client
-)
-
-type TickerResponse struct {
+type tickerResponse struct {
 	Data map[string]struct {
 		Quote map[string]struct {
 			Price float64 `json:"price"`
@@ -42,8 +34,27 @@ type TickerResponse struct {
 	} `json:"data"`
 }
 
-func getNanoPrice(currency string) (price decimal.Decimal, err error) {
-	if config.CoinmarketcapAPIKey == "" {
+type API struct {
+	apiKey        string
+	cacheDuration time.Duration
+	priceClient   http.Client
+
+	// Cache price.
+	mPrice sync.Mutex
+	prices map[string]priceWithTimestamp
+}
+
+func NewAPI(apiKey string, clientTimeout, cacheDuration time.Duration) *API {
+	return &API{
+		apiKey:        apiKey,
+		cacheDuration: cacheDuration,
+		priceClient:   http.Client{Timeout: clientTimeout},
+		prices:        make(map[string]priceWithTimestamp),
+	}
+}
+
+func (p *API) GetNanoPrice(currency string) (price decimal.Decimal, err error) {
+	if p.apiKey == "" {
 		err = errors.New("empty CoinmarketcapAPIKey value in config")
 		return
 	}
@@ -52,10 +63,10 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	}
 	currency = strings.ToUpper(currency)
 
-	mPrice.Lock()
-	defer mPrice.Unlock()
+	p.mPrice.Lock()
+	defer p.mPrice.Unlock()
 
-	if cached, ok := prices[currency]; ok && time.Since(cached.FetchedAt) < config.CoinmarketcapCacheDuration {
+	if cached, ok := p.prices[currency]; ok && time.Since(cached.FetchedAt) < p.cacheDuration {
 		return cached.Price, nil
 	}
 
@@ -69,10 +80,10 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 	q.Add("convert", currency)
 
 	req.Header.Set("Accepts", "application/json")
-	req.Header.Add("X-CMC_PRO_API_KEY", config.CoinmarketcapAPIKey)
+	req.Header.Add("X-CMC_PRO_API_KEY", p.apiKey)
 	req.URL.RawQuery = q.Encode()
 
-	resp, err := priceClient.Do(req)
+	resp, err := p.priceClient.Do(req)
 	if err != nil {
 		return
 	}
@@ -89,7 +100,7 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 		err = errBadTickerResponse
 		return
 	}
-	var response TickerResponse
+	var response tickerResponse
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return
@@ -110,7 +121,7 @@ func getNanoPrice(currency string) (price decimal.Decimal, err error) {
 		return
 	}
 	// Cache new value
-	prices[currency] = PriceWithTimestamp{
+	p.prices[currency] = priceWithTimestamp{
 		Price:     price,
 		FetchedAt: time.Now(),
 	}

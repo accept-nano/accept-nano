@@ -55,7 +55,7 @@ func handleVersion(w http.ResponseWriter, r *http.Request) {
 
 func handlePrice(w http.ResponseWriter, r *http.Request) {
 	currency := r.FormValue("currency")
-	price, err := getNanoPrice(currency)
+	price, err := priceAPI.GetNanoPrice(currency)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -87,7 +87,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 	}
 	currency := r.FormValue("currency")
 	if currency != "" {
-		price, err2 := getNanoPrice(currency)
+		price, err2 := priceAPI.GetNanoPrice(currency)
 		if err2 != nil {
 			log.Error(err2)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

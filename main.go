@@ -12,6 +12,7 @@ import (
 
 	"github.com/accept-nano/accept-nano/internal/hub"
 	"github.com/accept-nano/accept-nano/internal/nano"
+	"github.com/accept-nano/accept-nano/internal/price"
 	"github.com/cenkalti/log"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
@@ -40,6 +41,7 @@ var (
 	checkPaymentWG    sync.WaitGroup
 	confirmations     = make(chan string)
 	verifications     hub.Hub
+	priceAPI          *price.API
 )
 
 func versionString() string {
@@ -88,7 +90,7 @@ func main() {
 	rateLimiter = limiter.New(memory.NewStore(), rate, limiter.WithTrustForwardHeader(true))
 	node = nano.New(config.NodeURL, config.NodeTimeout, config.NodeAuthorizationHeader)
 	notificationClient.Timeout = config.NotificationRequestTimeout
-	priceClient.Timeout = config.CoinmarketcapRequestTimeout
+	priceAPI = price.NewAPI(config.CoinmarketcapAPIKey, config.CoinmarketcapRequestTimeout, config.CoinmarketcapCacheDuration)
 
 	log.Debugln("opening db:", config.DatabasePath)
 	db, err = bbolt.Open(config.DatabasePath, 0600, nil)
