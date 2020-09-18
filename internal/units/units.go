@@ -1,4 +1,4 @@
-package main
+package units
 
 import (
 	"github.com/shopspring/decimal"

@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/accept-nano/accept-nano/internal/units"
 	"github.com/shopspring/decimal"
 )
 
@@ -29,15 +30,15 @@ type SubPaymentResponse struct {
 func NewResponse(p *Payment, token string) *Response {
 	subPayments := make(map[string]SubPaymentResponse, len(p.SubPayments))
 	for k, v := range p.SubPayments {
-		subPayments[k] = SubPaymentResponse{Account: v.Account, Amount: RawToNano(v.Amount)}
+		subPayments[k] = SubPaymentResponse{Account: v.Account, Amount: units.RawToNano(v.Amount)}
 	}
 	return &Response{
 		Token:            token,
 		Account:          p.Account,
-		Amount:           RawToNano(p.Amount),
+		Amount:           units.RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,
 		Currency:         p.Currency,
-		Balance:          RawToNano(p.Balance),
+		Balance:          units.RawToNano(p.Balance),
 		State:            p.State,
 		SubPayments:      subPayments,
 		RemainingSeconds: int(p.remainingDuration() / time.Second),

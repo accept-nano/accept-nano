@@ -9,6 +9,7 @@ import (
 
 	"github.com/accept-nano/accept-nano/internal/maplock"
 	"github.com/accept-nano/accept-nano/internal/nano"
+	"github.com/accept-nano/accept-nano/internal/units"
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
 	"go.etcd.io/bbolt"
@@ -291,7 +292,7 @@ func (p *Payment) checkPending() error {
 	default:
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(threshold).String())
 	if err != nil {
 		return err
 	}
@@ -304,14 +305,14 @@ func (p *Payment) checkPending() error {
 		if err2 != nil {
 			return err2
 		}
-		log.Debugln("amount:", RawToNano(amount))
+		log.Debugln("amount:", units.RawToNano(amount))
 		totalAmount = totalAmount.Add(amount)
 		if p.SubPayments == nil {
 			p.SubPayments = make(map[string]SubPayment, 1)
 		}
 		p.SubPayments[hash] = SubPayment{Account: pendingBlock.Source, Amount: amount}
 	}
-	log.Debugln("total amount:", RawToNano(totalAmount))
+	log.Debugln("total amount:", units.RawToNano(totalAmount))
 	if p.Balance != totalAmount {
 		p.Balance = totalAmount
 		err = p.Save()
@@ -326,7 +327,7 @@ func (p *Payment) checkPending() error {
 }
 
 func (p *Payment) isFulfilled() bool {
-	if config.UnderPaymentToleranceFixed != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Sub(NanoToRaw(decimal.NewFromFloat(config.UnderPaymentToleranceFixed)))) {
+	if config.UnderPaymentToleranceFixed != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Sub(units.NanoToRaw(decimal.NewFromFloat(config.UnderPaymentToleranceFixed)))) {
 		return true
 	}
 	if config.UnderPaymentTolerancePercent != 0 && p.Balance.GreaterThanOrEqual(p.Amount.Mul(decimal.NewFromFloat(100-config.UnderPaymentTolerancePercent))) { // nolint: gomnd
@@ -340,7 +341,7 @@ func (p *Payment) receivePending() error {
 	if err != nil {
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, NanoToRaw(threshold).String())
+	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(threshold).String())
 	if err != nil {
 		return err
 	}
@@ -374,10 +375,10 @@ func (p *Payment) notifyMerchant() error {
 	}
 	notification := Notification{
 		Account:          p.Account,
-		Amount:           RawToNano(p.Amount),
+		Amount:           units.RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,
 		Currency:         p.Currency,
-		Balance:          RawToNano(p.Balance),
+		Balance:          units.RawToNano(p.Balance),
 		State:            p.State,
 		Fulfilled:        p.FulfilledAt != nil,
 		FulfilledAt:      p.FulfilledAt,

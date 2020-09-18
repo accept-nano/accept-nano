@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/accept-nano/accept-nano/internal/hub"
+	"github.com/accept-nano/accept-nano/internal/units"
 	"github.com/cenkalti/log"
 	"github.com/rs/cors"
 	"github.com/shopspring/decimal"
@@ -121,7 +122,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		PublicKey:        key.Public,
 		Account:          key.Account,
 		Index:            index,
-		Amount:           NanoToRaw(amount),
+		Amount:           units.NanoToRaw(amount),
 		AmountInCurrency: amountInCurrency,
 		Currency:         currency,
 		State:            r.FormValue("state"),
