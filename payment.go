@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/accept-nano/accept-nano/internal/maplock"
 	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/cenkalti/log"
 	"github.com/shopspring/decimal"
@@ -215,7 +216,7 @@ func (p *Payment) check() error {
 	}
 }
 
-var locks = NewMapLock()
+var locks = maplock.New()
 
 func (p *Payment) process() error { // nolint: gocognit
 	if p.SentAt == nil { // nolint: nestif

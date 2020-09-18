@@ -1,15 +1,13 @@
-package main
+package maplock
 
-import (
-	"sync"
-)
+import "sync"
 
 type MapLock struct {
 	locks map[string]*sync.Mutex
 	m     sync.Mutex
 }
 
-func NewMapLock() *MapLock {
+func New() *MapLock {
 	return &MapLock{
 		locks: make(map[string]*sync.Mutex),
 	}
