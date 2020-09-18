@@ -119,7 +119,6 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payment := &Payment{
-		PublicKey:        key.Public,
 		Account:          key.Account,
 		Index:            index,
 		Amount:           units.NanoToRaw(amount),

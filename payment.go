@@ -26,8 +26,6 @@ var notificationClient http.Client
 type Payment struct {
 	// Customer sends money to this account.
 	Account string `json:"account"`
-	// Public key of Account.
-	PublicKey string `json:"publicKey"`
 	// Index for generating deterministic key.
 	Index string `json:"index"`
 	// Currency of amount in original request.
@@ -348,7 +346,7 @@ func (p *Payment) receivePending() error {
 		return err
 	}
 	for hash, pendingBlock := range pendingBlocks {
-		err = receiveBlock(hash, pendingBlock.Amount, p.Account, key.Private, p.PublicKey)
+		err = receiveBlock(hash, pendingBlock.Amount, p.Account, key.Private, key.Public)
 		if err != nil {
 			return err
 		}
