@@ -25,7 +25,7 @@ var notificationClient http.Client
 // Payment is the data type stored in the database in JSON format.
 type Payment struct {
 	// Customer sends money to this account.
-	Account string `json:"account"`
+	account string
 	// Index for generating deterministic key.
 	Index string `json:"index"`
 	// Currency of amount in original request.
@@ -82,9 +82,9 @@ func LoadPayment(key []byte) (*Payment, error) {
 	if value == nil {
 		return nil, errPaymentNotFound
 	}
-	var payment Payment
-	err = json.Unmarshal(value, &payment)
-	return &payment, err
+	payment := &Payment{account: string(key)}
+	err = json.Unmarshal(value, payment)
+	return payment, err
 }
 
 func LoadActivePayments() ([]*Payment, error) {
@@ -92,7 +92,7 @@ func LoadActivePayments() ([]*Payment, error) {
 	err := db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
 		return b.ForEach(func(k, v []byte) error {
-			p := new(Payment)
+			p := &Payment{account: string(k)}
 			err := json.Unmarshal(v, p)
 			if err != nil {
 				log.Error(err)
@@ -109,14 +109,13 @@ func LoadActivePayments() ([]*Payment, error) {
 
 // Save the Payment object in database.
 func (p *Payment) Save() error {
-	key := []byte(p.Account)
 	value, err := json.Marshal(&p)
 	if err != nil {
 		return err
 	}
 	return db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
-		return b.Put(key, value)
+		return b.Put([]byte(p.account), value)
 	})
 }
 
@@ -173,24 +172,24 @@ func (p *Payment) checkLoop() {
 }
 
 func (p *Payment) checkOnce() {
-	locks.Lock(p.Account)
-	defer locks.Unlock(p.Account)
+	locks.Lock(p.account)
+	defer locks.Unlock(p.account)
 
 	err := p.reload()
 	if err != nil {
-		log.Errorln("cannot load payment:", p.Account)
+		log.Errorln("cannot load payment:", p.account)
 		return
 	}
 	err = p.check()
 	if err != nil {
-		log.Errorf("error checking %s: %s", p.Account, err)
+		log.Errorf("error checking %s: %s", p.account, err)
 		return
 	}
 }
 
 // Reload payment because it might be updated by admin operations.
 func (p *Payment) reload() error {
-	p2, err := LoadPayment([]byte(p.Account))
+	p2, err := LoadPayment([]byte(p.account))
 	if err != nil {
 		return err
 	}
@@ -199,7 +198,7 @@ func (p *Payment) reload() error {
 }
 
 func (p *Payment) check() error {
-	log.Debugln("checking payment:", p.Account)
+	log.Debugln("checking payment:", p.account)
 	err := p.process()
 	p.LastCheckedAt = now()
 	switch err {
@@ -275,7 +274,7 @@ func now() *time.Time {
 
 func (p *Payment) checkPending() error {
 	var totalAmount decimal.Decimal
-	accountInfo, err := node.AccountInfo(p.Account)
+	accountInfo, err := node.AccountInfo(p.account)
 	switch err {
 	case nano.ErrAccountNotFound:
 	case nil:
@@ -283,7 +282,7 @@ func (p *Payment) checkPending() error {
 	default:
 		return err
 	}
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
+	pendingBlocks, err := node.Pending(p.account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
 	if err != nil {
 		return err
 	}
@@ -334,7 +333,7 @@ func (p *Payment) isFulfilled() bool {
 }
 
 func (p *Payment) receivePending() error {
-	pendingBlocks, err := node.Pending(p.Account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
+	pendingBlocks, err := node.Pending(p.account, config.MaxPayments, units.NanoToRaw(config.ReceiveThreshold))
 	if err != nil {
 		return err
 	}
@@ -346,7 +345,7 @@ func (p *Payment) receivePending() error {
 		return err
 	}
 	for hash, pendingBlock := range pendingBlocks {
-		err = receiveBlock(hash, pendingBlock.Amount, p.Account, key.Private, key.Public)
+		err = receiveBlock(hash, pendingBlock.Amount, p.account, key.Private, key.Public)
 		if err != nil {
 			return err
 		}
@@ -359,7 +358,7 @@ func (p *Payment) sendToMerchant() error {
 	if err != nil {
 		return err
 	}
-	return sendAll(p.Account, config.Account, key.Private)
+	return sendAll(p.account, config.Account, key.Private)
 }
 
 func (p *Payment) notifyMerchant() error {
@@ -367,7 +366,7 @@ func (p *Payment) notifyMerchant() error {
 		return nil
 	}
 	notification := Notification{
-		Account:          p.Account,
+		Account:          p.account,
 		Amount:           units.RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,
 		Currency:         p.Currency,

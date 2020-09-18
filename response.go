@@ -34,7 +34,7 @@ func NewResponse(p *Payment, token string) *Response {
 	}
 	return &Response{
 		Token:            token,
-		Account:          p.Account,
+		Account:          p.account,
 		Amount:           units.RawToNano(p.Amount),
 		AmountInCurrency: p.AmountInCurrency,
 		Currency:         p.Currency,

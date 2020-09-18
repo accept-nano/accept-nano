@@ -119,7 +119,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	payment := &Payment{
-		Account:          key.Account,
+		account:          key.Account,
 		Index:            index,
 		Amount:           units.NanoToRaw(amount),
 		AmountInCurrency: amountInCurrency,
@@ -227,5 +227,5 @@ type PaymentVerified struct {
 }
 
 func (p PaymentVerified) Account() hub.Account {
-	return hub.Account(p.Payment.Account)
+	return hub.Account(p.Payment.account)
 }
