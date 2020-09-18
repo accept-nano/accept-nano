@@ -12,15 +12,13 @@ import (
 )
 
 type MyCustomClaims struct {
-	Index   string `json:"index"`
-	Account string `json:"account"`
+	Index string `json:"index"`
 	jwt.StandardClaims
 }
 
-func NewToken(index, account string) (string, error) {
+func NewToken(index string) (string, error) {
 	claims := MyCustomClaims{
-		Index:   index,
-		Account: account,
+		Index: index,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(config.Seed))

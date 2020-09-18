@@ -112,7 +112,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	token, err := NewToken(index, key.Account)
+	token, err := NewToken(index)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -159,7 +159,12 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid token", http.StatusBadRequest)
 		return
 	}
-	payment, err := LoadPayment([]byte(claims.Account))
+	key, err := node.DeterministicKey(config.Seed, claims.Index)
+	if err != nil {
+		http.Error(w, "invalid token", http.StatusBadRequest)
+		return
+	}
+	payment, err := LoadPayment([]byte(key.Account))
 	if err == errPaymentNotFound {
 		log.Debugln("token not found:", token)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -193,7 +198,11 @@ func handleWebsocket(conn *websocket.Conn) {
 	if err != nil {
 		return
 	}
-	cancel := verifications.Subscribe(hub.Account(claims.Account), func(e hub.Event) {
+	key, err := node.DeterministicKey(config.Seed, claims.Index)
+	if err != nil {
+		return
+	}
+	cancel := verifications.Subscribe(hub.Account(key.Account), func(e hub.Event) {
 		pv := e.(PaymentVerified)
 		response := NewResponse(&pv.Payment, token)
 		b, err := json.Marshal(&response)
