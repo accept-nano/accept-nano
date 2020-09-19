@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/cenkalti/log"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Websocket struct {
@@ -22,7 +22,7 @@ func NewWebsocket(wsURL string) *Websocket {
 
 func (w *Websocket) Connect() error {
 	log.Debugf("connecting to websocket: %s", w.url)
-	conn, err := websocket.Dial(w.url, "", "http://localhost/")
+	conn, _, err := websocket.DefaultDialer.Dial(w.url, nil)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (w *Websocket) Send(action, topic string, ack bool, options map[string]inte
 		m["options"] = options
 	}
 	log.Debugf("sending websocket message: %#v", m)
-	err := websocket.JSON.Send(w.conn, m)
+	err := w.conn.WriteJSON(m)
 	if err != nil {
 		return nil
 	}
@@ -76,5 +76,5 @@ func (w *Websocket) Send(action, topic string, ack bool, options map[string]inte
 var errInvalidAck = errors.New("invalid ack")
 
 func (w *Websocket) Recv(msg interface{}) error {
-	return websocket.JSON.Receive(w.conn, msg)
+	return w.conn.ReadJSON(msg)
 }
