@@ -9,6 +9,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var errInvalidAck = errors.New("invalid ack")
+
 type Websocket struct {
 	url  string
 	conn *websocket.Conn
@@ -32,10 +34,10 @@ func (w *Websocket) Connect() error {
 }
 
 func (w *Websocket) Close() error {
-	if w.conn != nil {
-		return w.conn.Close()
+	if w.conn == nil {
+		return nil
 	}
-	return nil
+	return w.conn.Close()
 }
 
 func (w *Websocket) Send(action, topic string, ack bool, options map[string]interface{}) error {
@@ -72,8 +74,6 @@ func (w *Websocket) Send(action, topic string, ack bool, options map[string]inte
 	}
 	return nil
 }
-
-var errInvalidAck = errors.New("invalid ack")
 
 func (w *Websocket) Recv(msg interface{}) error {
 	return w.conn.ReadJSON(msg)
