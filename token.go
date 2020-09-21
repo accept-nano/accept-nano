@@ -48,7 +48,7 @@ func NewSeed() (string, error) {
 }
 
 func NewIndex() (string, error) {
-	b := make([]byte, 8)
+	b := make([]byte, 4)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", err
