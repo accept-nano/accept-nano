@@ -64,11 +64,11 @@ type SubPayment struct {
 }
 
 // LoadPayment fetches a Payment object from database by key.
-func LoadPayment(key []byte) (*Payment, error) {
+func LoadPayment(account string) (*Payment, error) {
 	var value []byte
 	err := db.View(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
-		v := b.Get(key)
+		v := b.Get([]byte(account))
 		if v == nil {
 			return nil
 		}
@@ -82,7 +82,7 @@ func LoadPayment(key []byte) (*Payment, error) {
 	if value == nil {
 		return nil, errPaymentNotFound
 	}
-	payment := &Payment{account: string(key)}
+	payment := &Payment{account: account}
 	err = json.Unmarshal(value, payment)
 	return payment, err
 }
@@ -196,7 +196,7 @@ func (p *Payment) checkOnce() {
 
 // Reload payment because it might be updated by admin operations.
 func (p *Payment) reload() error {
-	p2, err := LoadPayment([]byte(p.account))
+	p2, err := LoadPayment(p.account)
 	if err != nil {
 		return err
 	}

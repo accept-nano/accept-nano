@@ -61,7 +61,7 @@ func handleAdminGetPayment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid account", http.StatusBadRequest)
 		return
 	}
-	payment, err := LoadPayment([]byte(account))
+	payment, err := LoadPayment(account)
 	if err == errPaymentNotFound {
 		log.Debugln("account not found:", account)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -109,7 +109,7 @@ func handleAdminCheckPayment(w http.ResponseWriter, r *http.Request) {
 	}
 	locks.Lock(account)
 	defer locks.Unlock(account)
-	payment, err := LoadPayment([]byte(account))
+	payment, err := LoadPayment(account)
 	if err == errPaymentNotFound {
 		log.Debugln("account not found:", account)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -170,7 +170,7 @@ func handleAdminReceivePending(w http.ResponseWriter, r *http.Request) {
 	}
 	locks.Lock(account)
 	defer locks.Unlock(account)
-	payment, err := LoadPayment([]byte(account))
+	payment, err := LoadPayment(account)
 	if err == errPaymentNotFound {
 		log.Debugln("account not found:", account)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -238,7 +238,7 @@ func handleAdminSendToMerchant(w http.ResponseWriter, r *http.Request) {
 	}
 	locks.Lock(account)
 	defer locks.Unlock(account)
-	payment, err := LoadPayment([]byte(account))
+	payment, err := LoadPayment(account)
 	if err == errPaymentNotFound {
 		log.Debugln("account not found:", account)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)

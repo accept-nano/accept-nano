@@ -112,7 +112,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	_, err = LoadPayment([]byte(key.Account))
+	_, err = LoadPayment(key.Account)
 	if err != nil {
 		if err != errPaymentNotFound {
 			log.Error(err)
@@ -176,7 +176,7 @@ func handleVerify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid token", http.StatusBadRequest)
 		return
 	}
-	payment, err := LoadPayment([]byte(key.Account))
+	payment, err := LoadPayment(key.Account)
 	if err == errPaymentNotFound {
 		log.Debugln("token not found:", token)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)

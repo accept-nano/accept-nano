@@ -152,7 +152,7 @@ func main() {
 
 func runChecker() {
 	for account := range subs.Confirmations {
-		p, err := LoadPayment([]byte(account))
+		p, err := LoadPayment(account)
 		if err == errPaymentNotFound {
 			continue
 		}
