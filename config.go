@@ -23,10 +23,14 @@ type Config struct {
 	// Optional TLS certificate and key if you want to serve over HTTPS.
 	CertFile, KeyFile string
 	// URL of a running node.
+	// You can use your own node or any public node proxy service.
 	NodeURL string
 	// Websocket URL of a running node.
+	// With the help of Websocket support, sent payment can be detected immediatlely on the network.
+	// Otherwise, accept-nano needs to poll the node for checking account balances.
 	NodeWebsocketURL string
 	// Disable subscribing confirmations over WebSocket
+	// Only polling method will be used for checking balances.
 	DisableWebsocket bool
 	// Time to wait for connect and handshake to be completed.
 	NodeWebsocketHandshakeTimeout time.Duration
@@ -40,12 +44,14 @@ type Config struct {
 	NodeTimeout time.Duration
 	// Authorization HTTP header value for node requests.
 	NodeAuthorizationHeader string
-	// Funds will be sent to this address.
+	// Set this to your merchant account. Received funds will be sent to this address.
 	Account string
 	// Representative for created deposit accounts.
+	// It is not that important for the network because after funds are detected in deposit account,
+	// they will be transferred to your merchant account immediatlely.
 	Representative string
-	// Seed to generate private keys from.
-	// This is not your Account seed!
+	// Seed to generate the private key for deposit accounts.
+	// Do not put your merchant account seed here!
 	// You can generate a new seed with -seed flag.
 	// This seed will also be used for signing JWT tokens.
 	Seed string
@@ -53,33 +59,38 @@ type Config struct {
 	NotificationURL string
 	// Timeout for requests made to the merchant's NotificationURL
 	NotificationRequestTimeout time.Duration
-	// Give some time to unfinished HTTP requests before shutting down the server.
+	// On shutdown of the server, give some time to unfinished HTTP requests before shutting down the server.
 	ShutdownTimeout time.Duration
 	// Limit payment creation requests to prevent DOS attack.
 	RateLimit string
-	// To protect against spam, payments below this amount are ignored.
+	// To protect against spam, payments below this amount are ignored and not going to be processed.
 	ReceiveThreshold decimal.Decimal
-	// Maximum number of payments allowed to fulfill the expected amount.
+	// Maximum number of payments allowed to fulfill the expected amount. Limited to prevent DOS.
 	MaxPayments int
 	// Up to this amount underpayments are accepted. Amount in NANO.
 	UnderPaymentToleranceFixed decimal.Decimal
 	// Up to this amount underpayments are accepted. Amount in percent.
 	UnderPaymentTolerancePercent float64
 	// Max allowed time for payment after it is created.
+	// Payment is not going to be checked automatically after this duration passes from creation
+	// but it can always be triggered from admin endpoint manually.
 	AllowedDuration time.Duration
 	// Parameter for calculating next check time of the payment.
 	// Time passed since the creation of payment request is divided to this number.
+	// For example, for a factor value of 20, if a minute has passed after creation, then the next check will be after 60/20=3 seconds.
 	NextCheckDurationFactor float64
 	// Min allowed duration to check the payment.
+	// Value calculated using NextCheckDurationFactor cannot be smalled than this value.
 	MinNextCheckDuration time.Duration
 	// Max allowed duration to check the payment.
+	// Value calculated using NextCheckDurationFactor cannot be larger than this value.
 	MaxNextCheckDuration time.Duration
 	// Password for accessing admin endpoints.
-	// Admin endpoints are protected with HTTP basic auth. Username is "admin".
+	// Admin endpoints are protected with HTTP basic auth. Username is always "admin".
 	// If no password is set, admin endpoints are disabled.
 	AdminPassword string
-	// Coinmarketcap API Key
-	// https://coinmarketcap.com/api/documentation/v1/
+	// Coinmarketcap API Key for getting the price conversion for fiat moneys.
+	// Get API key from: https://coinmarketcap.com/api/documentation/v1/
 	CoinmarketcapAPIKey string
 	// Timeout for HTTP requests made to Coinmarketcap
 	CoinmarketcapRequestTimeout time.Duration
