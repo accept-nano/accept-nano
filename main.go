@@ -13,6 +13,7 @@ import (
 	"github.com/accept-nano/accept-nano/internal/hub"
 	"github.com/accept-nano/accept-nano/internal/nano"
 	"github.com/accept-nano/accept-nano/internal/price"
+	"github.com/accept-nano/accept-nano/internal/subscriber"
 	"github.com/cenkalti/log"
 	"github.com/ulule/limiter/v3"
 	"github.com/ulule/limiter/v3/drivers/store/memory"
@@ -39,9 +40,9 @@ var (
 	node              *nano.Node
 	stopCheckPayments = make(chan struct{})
 	checkPaymentWG    sync.WaitGroup
-	confirmations     = make(chan string)
 	verifications     hub.Hub
 	priceAPI          *price.API
+	subs              *subscriber.Subscriber
 )
 
 func versionString() string {
@@ -91,6 +92,7 @@ func main() {
 	node = nano.New(config.NodeURL, config.NodeTimeout, config.NodeAuthorizationHeader)
 	notificationClient.Timeout = config.NotificationRequestTimeout
 	priceAPI = price.NewAPI(config.CoinmarketcapAPIKey, config.CoinmarketcapRequestTimeout, config.CoinmarketcapCacheDuration)
+	subs = subscriber.New(config.NodeWebsocketURL, config.NodeWebsocketHandshakeTimeout, config.NodeWebsocketWriteTimeout, config.NodeWebsocketAckTimeout, config.NodeWebsocketKeepAlivePeriod)
 
 	log.Debugln("opening db:", config.DatabasePath)
 	db, err = bbolt.Open(config.DatabasePath, 0600, nil)
@@ -117,7 +119,7 @@ func main() {
 	}
 
 	if !config.DisableWebsocket && config.NodeWebsocketURL != "" {
-		go runSubscriber()
+		go subs.Run()
 		go runChecker()
 	}
 
@@ -145,5 +147,20 @@ func main() {
 	err = db.Close()
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+func runChecker() {
+	for account := range subs.Confirmations {
+		p, err := LoadPayment([]byte(account))
+		if err == errPaymentNotFound {
+			continue
+		}
+		if err != nil {
+			log.Errorf("cannot load payment: %s", err.Error())
+			continue
+		}
+		log.Debugf("received confirmation from websocket, checking account: %s", account)
+		go p.checkOnce()
 	}
 }

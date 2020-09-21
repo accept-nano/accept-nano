@@ -152,12 +152,19 @@ func (p Payment) remainingDuration() time.Duration {
 
 // StartChecking starts a goroutine to check the payment periodically.
 func (p *Payment) StartChecking() {
+	if p.finished() {
+		return
+	}
 	checkPaymentWG.Add(1)
 	go p.checkLoop()
 }
 
 func (p *Payment) checkLoop() {
 	defer checkPaymentWG.Done()
+
+	subs.Subscribe(p.account)
+	defer subs.Unsubscribe(p.account)
+
 	for {
 		if p.finished() {
 			return

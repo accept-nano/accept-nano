@@ -28,6 +28,14 @@ type Config struct {
 	NodeWebsocketURL string
 	// Disable subscribing confirmations over WebSocket
 	DisableWebsocket bool
+	// Time to wait for connect and handshake to be completed.
+	NodeWebsocketHandshakeTimeout time.Duration
+	// TCP write timeout for Websocket connection
+	NodeWebsocketWriteTimeout time.Duration
+	// Time to wait for a subscription action to be completed.
+	NodeWebsocketAckTimeout time.Duration
+	// Duration between 2 keepalive messages.
+	NodeWebsocketKeepAlivePeriod time.Duration
 	// Timeout for requests made to Node URL.
 	NodeTimeout time.Duration
 	// Authorization HTTP header value for node requests.
@@ -80,23 +88,27 @@ type Config struct {
 }
 
 var DefaultConfig = Config{
-	DatabasePath:                "accept-nano.db",
-	ListenAddress:               "127.0.0.1:8080",
-	NodeURL:                     "http://127.0.0.1:7076",
-	NodeWebsocketURL:            "ws://127.0.0.1:7078",
-	NodeTimeout:                 time.Minute,
-	Representative:              "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r",
-	ShutdownTimeout:             5 * time.Second,
-	RateLimit:                   "60-H",
-	ReceiveThreshold:            decimal.RequireFromString("0.001"),
-	MaxPayments:                 10,
-	AllowedDuration:             time.Hour,
-	NextCheckDurationFactor:     20,
-	MinNextCheckDuration:        10 * time.Second,
-	MaxNextCheckDuration:        20 * time.Minute,
-	CoinmarketcapRequestTimeout: 10 * time.Second,
-	CoinmarketcapCacheDuration:  time.Minute,
-	NotificationRequestTimeout:  time.Minute,
+	DatabasePath:                  "accept-nano.db",
+	ListenAddress:                 "127.0.0.1:8080",
+	NodeURL:                       "http://127.0.0.1:7076",
+	NodeWebsocketURL:              "ws://127.0.0.1:7078",
+	NodeWebsocketHandshakeTimeout: 10 * time.Second,
+	NodeWebsocketWriteTimeout:     10 * time.Second,
+	NodeWebsocketAckTimeout:       10 * time.Second,
+	NodeWebsocketKeepAlivePeriod:  time.Minute,
+	NodeTimeout:                   time.Minute,
+	Representative:                "nano_1ninja7rh37ehfp9utkor5ixmxyg8kme8fnzc4zty145ibch8kf5jwpnzr3r",
+	ShutdownTimeout:               5 * time.Second,
+	RateLimit:                     "60-H",
+	ReceiveThreshold:              decimal.RequireFromString("0.001"),
+	MaxPayments:                   10,
+	AllowedDuration:               time.Hour,
+	NextCheckDurationFactor:       20,
+	MinNextCheckDuration:          10 * time.Second,
+	MaxNextCheckDuration:          20 * time.Minute,
+	CoinmarketcapRequestTimeout:   10 * time.Second,
+	CoinmarketcapCacheDuration:    time.Minute,
+	NotificationRequestTimeout:    time.Minute,
 }
 
 func (c *Config) Read() (err error) {
