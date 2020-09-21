@@ -112,6 +112,18 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	_, err = LoadPayment([]byte(key.Account))
+	if err != nil {
+		if err != errPaymentNotFound {
+			log.Error(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		log.Errorln("index collision:", index)
+		http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
+		return
+	}
 	token, err := NewToken(index)
 	if err != nil {
 		log.Error(err)
