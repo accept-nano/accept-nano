@@ -4,11 +4,11 @@ package hub
 
 import "sync"
 
-type Account string
+type Key = string
 
 // Event is an interface for published events.
 type Event interface {
-	Account() Account
+	Key() Key
 }
 
 // Hub is an event dispatcher, publishes events to the subscribers
@@ -16,7 +16,7 @@ type Event interface {
 // Optimized for publish calls.
 // The handlers may be called in order different than they are registered.
 type Hub struct {
-	subscribers map[Account][]handler
+	subscribers map[Key][]handler
 	m           sync.RWMutex
 	seq         uint64
 }
@@ -26,16 +26,16 @@ type handler struct {
 	id uint64
 }
 
-// Subscribe registers f for the event of a specific account.
-func (h *Hub) Subscribe(account Account, f func(Event)) (cancel func()) {
+// Subscribe registers f for the event of a specific key.
+func (h *Hub) Subscribe(key Key, f func(Event)) (cancel func()) {
 	var cancelled bool
 	h.m.Lock()
 	h.seq++
 	id := h.seq
 	if h.subscribers == nil {
-		h.subscribers = make(map[Account][]handler)
+		h.subscribers = make(map[Key][]handler)
 	}
-	h.subscribers[account] = append(h.subscribers[account], handler{id: id, f: f})
+	h.subscribers[key] = append(h.subscribers[key], handler{id: id, f: f})
 	h.m.Unlock()
 	return func() {
 		h.m.Lock()
@@ -44,15 +44,15 @@ func (h *Hub) Subscribe(account Account, f func(Event)) (cancel func()) {
 			return
 		}
 		cancelled = true
-		a := h.subscribers[account]
+		a := h.subscribers[key]
 		for i, f := range a {
 			if f.id == id {
-				a[i], h.subscribers[account] = a[len(a)-1], a[:len(a)-1]
+				a[i], h.subscribers[key] = a[len(a)-1], a[:len(a)-1]
 				break
 			}
 		}
 		if len(a) == 0 {
-			delete(h.subscribers, account)
+			delete(h.subscribers, key)
 		}
 		h.m.Unlock()
 	}
@@ -61,7 +61,7 @@ func (h *Hub) Subscribe(account Account, f func(Event)) (cancel func()) {
 // Publish an event to the subscribers.
 func (h *Hub) Publish(e Event) {
 	h.m.RLock()
-	if handlers, ok := h.subscribers[e.Account()]; ok {
+	if handlers, ok := h.subscribers[e.Key()]; ok {
 		for _, h := range handlers {
 			h.f(e)
 		}

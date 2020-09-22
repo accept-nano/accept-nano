@@ -214,7 +214,7 @@ func handleWebsocket(conn *websocket.Conn) {
 	if err != nil {
 		return
 	}
-	cancel := verifications.Subscribe(hub.Account(key.Account), func(e hub.Event) {
+	cancel := verifications.Subscribe(key.Account, func(e hub.Event) {
 		pv := e.(PaymentVerified)
 		response := NewResponse(&pv.Payment, token)
 		b, err := json.Marshal(&response)
@@ -238,6 +238,6 @@ type PaymentVerified struct {
 	Payment
 }
 
-func (p PaymentVerified) Account() hub.Account {
-	return hub.Account(p.Payment.account)
+func (p PaymentVerified) Key() hub.Key {
+	return p.Payment.account
 }
