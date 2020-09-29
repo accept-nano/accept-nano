@@ -77,7 +77,7 @@ func (w *Websocket) Recv(timeout time.Duration) (msg IncomingMessage, err error)
 	if err == nil {
 		msg2 := msg
 		msg2.Message = nil // prints as hex in log, may be too big for eyes
-		log.Debugf("received websocket message: %#v", msg)
+		log.Debugf("received websocket message: %#v", msg2)
 	}
 	return
 }
