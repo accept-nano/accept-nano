@@ -8,6 +8,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/websocket v1.4.2
 	github.com/knadh/koanf v0.12.1
+	github.com/mitchellh/mapstructure v1.2.2
 	github.com/rs/cors v1.7.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.6.1

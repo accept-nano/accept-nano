@@ -2,6 +2,7 @@ package main
 
 import (
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/mitchellh/mapstructure"
 	"github.com/shopspring/decimal"
 )
 
@@ -142,6 +144,37 @@ func (c *Config) Read() (err error) {
 	if err != nil {
 		return
 	}
-	err = k.Unmarshal("", &c)
+	conf := koanf.UnmarshalConf{
+		DecoderConfig: &mapstructure.DecoderConfig{
+			DecodeHook:       mapstructure.ComposeDecodeHookFunc(mapstructure.StringToTimeDurationHookFunc(), StringToDecimalHookFunc(), Float64ToDecimalHookFunc()),
+			WeaklyTypedInput: true,
+			Result:           c,
+		},
+	}
+	err = k.UnmarshalWithConf("", c, conf)
 	return
+}
+
+func StringToDecimalHookFunc() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String {
+			return data, nil
+		}
+		if t != reflect.TypeOf(decimal.Decimal{}) {
+			return data, nil
+		}
+		return decimal.NewFromString(data.(string))
+	}
+}
+
+func Float64ToDecimalHookFunc() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.Float64 {
+			return data, nil
+		}
+		if t != reflect.TypeOf(decimal.Decimal{}) {
+			return data, nil
+		}
+		return decimal.NewFromFloat(data.(float64)), nil
+	}
 }
