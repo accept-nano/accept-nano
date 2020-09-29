@@ -92,7 +92,6 @@ func main() {
 	node = nano.New(config.NodeURL, config.NodeTimeout, config.NodeAuthorizationHeader)
 	notificationClient.Timeout = config.NotificationRequestTimeout
 	priceAPI = price.NewAPI(config.CoinmarketcapAPIKey, config.CoinmarketcapRequestTimeout, config.CoinmarketcapCacheDuration)
-	subs = subscriber.New(config.NodeWebsocketURL, config.NodeWebsocketHandshakeTimeout, config.NodeWebsocketWriteTimeout, config.NodeWebsocketAckTimeout, config.NodeWebsocketKeepAlivePeriod)
 
 	log.Debugln("opening db:", config.DatabasePath)
 	db, err = bbolt.Open(config.DatabasePath, 0600, nil)
@@ -119,6 +118,7 @@ func main() {
 	}
 
 	if !config.DisableWebsocket && config.NodeWebsocketURL != "" {
+		subs = subscriber.New(config.NodeWebsocketURL, config.NodeWebsocketHandshakeTimeout, config.NodeWebsocketWriteTimeout, config.NodeWebsocketAckTimeout, config.NodeWebsocketKeepAlivePeriod)
 		go subs.Run()
 		go runChecker()
 	}

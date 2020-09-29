@@ -203,8 +203,10 @@ func (p *Payment) StartChecking() {
 func (p *Payment) checkLoop() {
 	defer checkPaymentWG.Done()
 
-	subs.Subscribe(p.account)
-	defer subs.Unsubscribe(p.account)
+	if subs != nil {
+		subs.Subscribe(p.account)
+		defer subs.Unsubscribe(p.account)
+	}
 
 	for {
 		if p.finished() {
