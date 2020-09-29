@@ -100,52 +100,26 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		currency = "NANO"
 	}
 	currency = strings.ToUpper(currency)
-	index, err := NewIndex()
-	if err != nil {
-		log.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	key, err := node.DeterministicKey(config.Seed, index)
-	if err != nil {
-		log.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	_, err = LoadPayment(key.Account)
-	if err != nil {
-		if err != errPaymentNotFound {
-			log.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		log.Errorln("index collision:", index)
-		http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
-		return
-	}
-	token, err := NewToken(index)
-	if err != nil {
-		log.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
 	payment := &Payment{
-		account:          key.Account,
-		Index:            index,
 		Amount:           units.NanoToRaw(amount),
 		AmountInCurrency: amountInCurrency,
 		Currency:         currency,
 		State:            r.FormValue("state"),
 		CreatedAt:        time.Now().UTC(),
 	}
-	err = payment.Save()
+	err = payment.SaveNew()
 	if err != nil {
 		log.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 	payment.StartChecking()
+	token, err := NewToken(payment.Index)
+	if err != nil {
+		log.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	response := NewResponse(payment, token)
 	b, err := json.Marshal(&response)
 	if err != nil {

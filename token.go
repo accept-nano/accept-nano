@@ -2,10 +2,8 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/binary"
 	"encoding/hex"
 	"errors"
-	"strconv"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -45,14 +43,4 @@ func NewSeed() (string, error) {
 		return "", err
 	}
 	return strings.ToUpper(hex.EncodeToString(b)), nil
-}
-
-func NewIndex() (string, error) {
-	b := make([]byte, 4)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	index := binary.LittleEndian.Uint64(b)
-	return strconv.FormatUint(index, 10), nil
 }

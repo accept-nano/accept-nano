@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/accept-nano/accept-nano/internal/maplock"
@@ -115,6 +116,46 @@ func (p *Payment) Save() error {
 	}
 	return db.Update(func(tx *bbolt.Tx) error {
 		b := tx.Bucket([]byte(paymentsBucket))
+		return b.Put([]byte(p.account), value)
+	})
+}
+
+// SaveNew saves newly created payment. Sets account and index fields before saving.
+func (p *Payment) SaveNew() error {
+	return db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket([]byte(paymentsBucket))
+		// Before using incremental ids, payment accounts were being generated with random indices.
+		// It is very unlikely that there are many payments with consecutive indices saved in database.
+		var index string
+		var account string
+		found := false
+		for i := 0; i < 100; i++ {
+			// This returns an error only if the Tx is closed or not writeable.
+			// That can't happen in an Update() call so I ignore the error check.
+			id, _ := b.NextSequence()
+			index = strconv.FormatUint(id, 10)
+			key, err := node.DeterministicKey(config.Seed, index)
+			if err != nil {
+				return err
+			}
+			v := b.Get([]byte(key.Account))
+			if v != nil {
+				// Payment exists with generated incremental index. Try next index.
+				continue
+			}
+			found = true
+			account = key.Account
+			break
+		}
+		if !found {
+			return errors.New("internal error: cannot create unique index")
+		}
+		p.Index = index
+		p.account = account
+		value, err := json.Marshal(&p)
+		if err != nil {
+			return err
+		}
 		return b.Put([]byte(p.account), value)
 	})
 }
