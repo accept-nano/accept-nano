@@ -17,4 +17,4 @@ if [ ! -f "${datadir}/config.toml" ]; then
 fi
 
 # start service
-accept-nano -config /opt/data/config.toml
+exec accept-nano -config /opt/data/config.toml
