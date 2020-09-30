@@ -1,33 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
+<!-- Based on: https://getbootstrap.com/docs/4.5/examples/pricing/ -->
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Accept Nano - Payment Gateway</title>
-	</head>
-	<body>
-		<h1>Accept Nano</h1>
-		<p>
-		Accept Nano is a payment gateway for <a href="https://nano.org">NANO</a>
-		</p>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pricing example · Bootstrap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha512-MoRNloxbStBcD8z3M/2BmnT+rg4IsMxPkXaGh2zD6LGNNFE80W3onsAhRcMAMrSoyWL9xD7Ert0men7vR8LUZg==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <style>
+      html {
+        font-size: 14px;
+      }
+      @media (min-width: 768px) {
+        html {
+          font-size: 16px;
+        }
+      }
+      .container {
+        max-width: 960px;
+      }
+      .nano-header {
+        max-width: 700px;
+      }
+      .card-deck .card {
+        min-width: 220px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+  <h5 class="my-0 mr-md-auto font-weight-normal"></h5>
+  <nav class="my-2 my-md-0 mr-md-3">
+      <a class="btn btn-outline-primary" href="https://nano.org/">nano.org</a>
+      <a class="btn btn-outline-primary" href="https://www.reddit.com/r/nanocurrency/">r/nanocurrency</a>
+  </nav>
+</div>
 
-		<h1>Components</h1>
+<div class="nano-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+  <h1 class="display-4">Accept Nano</h1>
+  <p class="lead">Accept Nano is a self-hosted payment gateway for <a href="https://nano.org">NANO</a> currency.</p>
+</div>
 
-		<h2>Server</h2>
-		You run <a href="https://github.com/accept-nano/accept-nano">accept-nano server</a> for accepting NANO as a merchant.
+<div class="container">
+  <div class="card-deck mb-3 text-center">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header">
+        <h4 class="my-0 font-weight-normal">Server</h4>
+      </div>
+      <div class="card-body">
+        <h1 class="card-title pricing-card-title"><i class="fas fa-server"></i> </small></h1>
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>Run this program on your server.</li>
+          <li>It will accept payments and forward to your account.</li>
+          <li>It will notify your backend with webhooks.</li>
+          <li>Does not need to know your private key.</li>
+        </ul>
+        <a type="button" class="btn btn-lg btn-block btn-primary" href="https://github.com/accept-nano/accept-nano">Download from GitHub</a>
+      </div>
+    </div>
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header">
+        <h4 class="my-0 font-weight-normal">Client</h4>
+      </div>
+      <div class="card-body">
+        <h1 class="card-title pricing-card-title"><i class="fas fa-desktop"></i> </small></h1>
+        <ul class="list-unstyled mt-3 mb-4">
+          <li>Integrate this JS library to your website.</li>
+          <li>Talks with Accept Nano server.</li>
+          <li>Shows QR code to users for payment.</li>
+          <li>Notifies user when payment is sent.</li>
+        </ul>
+        <a type="button" class="btn btn-lg btn-block btn-primary" href="https://github.com/accept-nano/accept-nano-client">Download from GitHub</a>
+      </div>
+    </div>
+  </div>
 
-		<h2>Client</h2>
-		You use <a href="https://github.com/accept-nano/accept-nano-client">accept-nano client</a> in your JS application to make requests to the server as the customer.
-
-		<h2>Demo</h2>
-		There is a working demo at <a href="https://rawgit.com/accept-nano/accept-nano-client/master/example/index.html">https://rawgit.com/accept-nano/accept-nano-client/master/example/index.html</a>
-
-		<footer>
-			&nbsp;
-			<hr>
-			Accept Nano is created at <a href="https://put.io">Put.io</a> by
-			<a href="http://cenkalti.com">Cenk Alti</a>,
-			<a href="http://altayaydemir.com">Altay Aydemir</a> and
-			<a href="https://twitter.com/muratbildirim">Murat Yildirim</a>.
-		</footer>
-	</body>
+  <footer class="pt-4 my-md-5 pt-md-5 border-top">
+    <div class="row">
+      <div class="col-12 col-md">
+        <small class="d-block mb-3 text-muted">
+          &copy; 2020 Accept Nano is created at <a href="https://put.io">Put.io</a> by
+          <a href="http://cenkalti.com">Cenk Alti</a>,
+          <a href="http://altayaydemir.com">Altay Aydemir</a> and
+          <a href="https://twitter.com/muratbildirim">Murat Yildirim</a>.
+        </small>
+      </div>
+    </div>
+  </footer>
+</div>
+</body>
 </html>
