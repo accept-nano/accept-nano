@@ -64,10 +64,7 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	log.Debugf("node response: %#v", string(body))
 	var errorResponse NodeError
 	err = json.Unmarshal(body, &errorResponse)
-	if err != nil {
-		return err
-	}
-	if errorResponse.Message != nil {
+	if err == nil && errorResponse.Message != nil {
 		return &errorResponse
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
