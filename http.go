@@ -86,8 +86,9 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid amount", http.StatusBadRequest)
 		return
 	}
+	const nanoCurrency = "XNO"
 	currency := r.FormValue("currency")
-	if currency != "" {
+	if currency != "" && currency != nanoCurrency {
 		price, err2 := priceAPI.GetNanoPrice(currency)
 		if err2 != nil {
 			log.Error(err2)
@@ -97,7 +98,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		amount = amountInCurrency.DivRound(price, 6)
 	} else {
 		amount = amountInCurrency
-		currency = "XNO"
+		currency = nanoCurrency
 	}
 	currency = strings.ToUpper(currency)
 	payment := &Payment{
