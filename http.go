@@ -97,7 +97,7 @@ func handlePay(w http.ResponseWriter, r *http.Request) {
 		amount = amountInCurrency.DivRound(price, 6)
 	} else {
 		amount = amountInCurrency
-		currency = "NANO"
+		currency = "XNO"
 	}
 	currency = strings.ToUpper(currency)
 	payment := &Payment{
