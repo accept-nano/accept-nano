@@ -33,7 +33,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.30
+          version: v1.45.2
 
       - name: Test
         run: go test -race -v -covermode atomic -coverprofile=covprofile ./...
