@@ -1,6 +1,6 @@
 module github.com/accept-nano/accept-nano
 
-go 1.13
+go 1.18
 
 require (
 	github.com/accept-nano/ed25519-blake2b v1.0.0
@@ -16,4 +16,18 @@ require (
 	go.etcd.io/bbolt v1.3.5
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/pelletier/go-toml v1.7.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/sys v0.0.0-20220405210540-1e041c57c461 // indirect
+	gopkg.in/yaml.v2 v2.2.8 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
