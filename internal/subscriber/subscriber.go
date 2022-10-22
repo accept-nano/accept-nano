@@ -144,6 +144,9 @@ func (s *Subscriber) writer() {
 				break
 			}
 		case <-keepAlive.C:
+			if !connected() {
+				continue
+			}
 			msg := nano.OutgoingMessage{
 				Action: "ping",
 			}
