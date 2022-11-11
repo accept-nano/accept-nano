@@ -1,4 +1,4 @@
-FROM golang:1.15.2-alpine3.12
+FROM golang:1.19.3-alpine3.16
 
 WORKDIR /go/src/accept-nano
 
@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 go install -ldflags="-s -w -X main.version=$VERSION -X main.co
 
 ###############################################################################
 
-FROM alpine:3.12.0
+FROM alpine:3.16.0
 
 COPY --from=0 /go/bin/accept-nano /usr/bin/accept-nano
 COPY docker ./docker

@@ -1,6 +1,6 @@
 module github.com/accept-nano/accept-nano
 
-go 1.18
+go 1.19
 
 require (
 	github.com/accept-nano/ed25519-blake2b v1.0.0
