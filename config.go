@@ -48,6 +48,9 @@ type Config struct {
 	NodeAuthorizationHeader string
 	// api-key header value for nano.nownodes.io service.
 	NodeAPIKeyHeader string
+	// Sleep duration between node calls.
+	// When it is set, concurrent calls are not allowed.
+	NodeSleepBetweenRequests time.Duration
 	// Set this to your merchant account. Received funds will be sent to this address.
 	Account string
 	// Representative for created deposit accounts.

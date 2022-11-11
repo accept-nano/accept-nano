@@ -2,6 +2,7 @@ package nano
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -11,24 +12,75 @@ import (
 )
 
 type Node struct {
-	url    string
-	client http.Client
-	auth   string
-	apiKey string
+	url      string
+	client   http.Client
+	sleep    time.Duration
+	auth     string
+	apiKey   string
+	requestC chan *nodeRequest
+	closeC   chan struct{}
 }
 
-func New(nodeURL string, timeout time.Duration, authorization, apiKey string) *Node {
-	return &Node{
+func New(nodeURL string, timeout, sleep time.Duration, authorization, apiKey string) *Node {
+	n := &Node{
 		url: nodeURL,
 		client: http.Client{
 			Timeout: timeout,
 		},
-		auth:   authorization,
-		apiKey: apiKey,
+		sleep:    sleep,
+		auth:     authorization,
+		apiKey:   apiKey,
+		requestC: make(chan *nodeRequest),
+		closeC:   make(chan struct{}),
+	}
+	go n.caller()
+	return n
+}
+
+func (n *Node) Close() {
+	close(n.closeC)
+}
+
+type nodeRequest struct {
+	action   string
+	args     map[string]interface{}
+	response interface{}
+	done     chan struct{}
+	err      error
+}
+
+func (n *Node) caller() {
+	for {
+		select {
+		case req := <-n.requestC:
+			req.err = n.callNow(req.action, req.args, req.response)
+			close(req.done)
+		case <-n.closeC:
+			return
+		}
+		select {
+		case <-time.After(n.sleep):
+		case <-n.closeC:
+			return
+		}
 	}
 }
 
 func (n *Node) call(action string, args map[string]interface{}, response interface{}) error {
+	if n.sleep == 0 {
+		return n.callNow(action, args, response)
+	}
+	req := &nodeRequest{action, args, response, make(chan struct{}), nil}
+	select {
+	case n.requestC <- req:
+		<-req.done
+		return req.err
+	case <-time.After(n.client.Timeout):
+		return context.Canceled
+	}
+}
+
+func (n *Node) callNow(action string, args map[string]interface{}, response interface{}) error {
 	if args == nil {
 		args = make(map[string]interface{})
 	}
