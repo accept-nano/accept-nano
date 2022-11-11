@@ -14,15 +14,17 @@ type Node struct {
 	url    string
 	client http.Client
 	auth   string
+	apiKey string
 }
 
-func New(nodeURL string, timeout time.Duration, authorization string) *Node {
+func New(nodeURL string, timeout time.Duration, authorization, apiKey string) *Node {
 	return &Node{
 		url: nodeURL,
 		client: http.Client{
 			Timeout: timeout,
 		},
-		auth: authorization,
+		auth:   authorization,
+		apiKey: apiKey,
 	}
 }
 
@@ -43,6 +45,9 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	req.Header.Set("Content-Type", "application/json")
 	if n.auth != "" {
 		req.Header.Set("authorization", n.auth)
+	}
+	if n.apiKey != "" {
+		req.Header.Set("api-key", n.apiKey)
 	}
 	resp, err := n.client.Do(req)
 	if err != nil {

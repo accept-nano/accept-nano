@@ -46,6 +46,8 @@ type Config struct {
 	NodeTimeout time.Duration
 	// Authorization HTTP header value for node requests.
 	NodeAuthorizationHeader string
+	// api-key header value for nano.nownodes.io service.
+	NodeAPIKeyHeader string
 	// Set this to your merchant account. Received funds will be sent to this address.
 	Account string
 	// Representative for created deposit accounts.
