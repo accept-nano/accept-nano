@@ -66,7 +66,7 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	if err != nil {
 		return err
 	}
-	log.Debugf("node response: %#v", string(body))
+	log.Debugf("node response: %d - %#v", resp.StatusCode, string(body))
 	var errorResponse NodeError
 	err = json.Unmarshal(body, &errorResponse)
 	if err == nil && errorResponse.Message != nil {

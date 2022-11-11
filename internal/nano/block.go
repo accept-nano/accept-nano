@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"strings"
 
@@ -87,7 +88,7 @@ func blockCreate(previous, account, representative, balance, link, key, work str
 		return
 	}
 	if len(prev) != blockSize {
-		err = errors.New("invalid previous block size")
+		err = fmt.Errorf("invalid previous block size: %d", len(prev))
 		return
 	}
 
