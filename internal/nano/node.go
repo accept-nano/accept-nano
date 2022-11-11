@@ -3,7 +3,7 @@ package nano
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -62,7 +62,7 @@ func (n *Node) call(action string, args map[string]interface{}, response interfa
 	if rateLimitReset != "" {
 		log.Debugln("Node rate limit reset:", rateLimitReset)
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

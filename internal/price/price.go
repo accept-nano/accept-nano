@@ -3,7 +3,7 @@ package price
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -92,7 +92,7 @@ func (p *API) GetNanoPrice(currency string) (price decimal.Decimal, err error) {
 			log.Debug(err2)
 		}
 	}()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return
 	}
